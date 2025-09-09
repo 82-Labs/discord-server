@@ -1,5 +1,7 @@
 package com.jydev.discord.config
 
+import com.jydev.discord.security.CustomAccessDeniedHandler
+import com.jydev.discord.security.CustomAuthenticationEntryPoint
 import com.jydev.discord.config.properties.SecurityProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,7 +15,9 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebFluxSecurity
 class SecurityConfig(
-    private val securityProperties: SecurityProperties
+    private val securityProperties: SecurityProperties,
+    private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val customAccessDeniedHandler: CustomAccessDeniedHandler
 ) {
 
     @Bean
@@ -23,6 +27,11 @@ class SecurityConfig(
             .formLogin { formLogin -> formLogin.disable() }
             .httpBasic { httpBasic -> httpBasic.disable() }
             .cors { cors -> cors.configurationSource(corsConfigurationSource()) }
+            .exceptionHandling { exceptions ->
+                exceptions
+                    .authenticationEntryPoint(customAuthenticationEntryPoint)
+                    .accessDeniedHandler(customAccessDeniedHandler)
+            }
             .authorizeExchange { exchanges ->
                 exchanges
                     .pathMatchers(*securityProperties.publicUrls.toTypedArray()).permitAll()
