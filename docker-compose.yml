@@ -1,0 +1,64 @@
+services:
+  discord-app:
+    env_file:
+      - ./discord-app/env/local.env
+    image: discord-app:latest
+    build:
+      context: .
+      dockerfile: discord-app/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - discord
+  db:
+    image: discord-db:latest
+    build:
+      context: .
+      dockerfile: db/mysql/Dockerfile
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - discord
+    ports:
+      - "3306:3306"
+
+  mongodb:
+    image: discord-mongodb:latest
+    build:
+      context: .
+      dockerfile: db/mongodb/Dockerfile
+    ports:
+      - "27017:27017"
+    networks:
+      - discord
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - discord
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
+networks:
+  discord:
+    driver: bridge

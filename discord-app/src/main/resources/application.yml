@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: discord-server
+  
+  # MySQL R2DBC Configuration
+  r2dbc:
+    url: r2dbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  
+  # MongoDB Configuration
+  data:
+    mongodb:
+      host: ${MONGODB_HOST}
+      port: ${MONGODB_PORT}
+      database: ${MONGODB_DATABASE}
+      username: ${MONGODB_USERNAME}
+      password: ${MONGODB_PASSWORD}
+      authentication-database: admin
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+app:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+  security:
+    cors-allowed-origins:
+      - "http://localhost:3000"
+      - "http://localhost:5173"
+    public-urls:
+      - "/auth/**"
+      - "/actuator/health"

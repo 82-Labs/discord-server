@@ -1,0 +1,1 @@
+// Common dependencies are now managed at the root level
