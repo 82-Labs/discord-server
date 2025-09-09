@@ -2,7 +2,7 @@ spring:
   application:
     name: discord-server
   
-  # MySQL R2DBC Configuration
+  # MySQL R2DBC Configuration  
   r2dbc:
     url: r2dbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
@@ -31,3 +31,7 @@ app:
     public-urls:
       - "/auth/**"
       - "/actuator/health"
+      - "/test/**"
+      - "/swagger-ui/**"
+      - "/swagger-ui.html"
+      - "/v3/api-docs/**"
