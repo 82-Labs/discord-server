@@ -1,4 +1,4 @@
-package com.jydev.discord.auth.infra
+package com.jydev.discord.auth.infra.persistence
 
 import com.jydev.discord.domain.auth.AuthCredential
 import com.jydev.discord.domain.auth.AuthProvider

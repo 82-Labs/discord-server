@@ -1,4 +1,4 @@
-package com.jydev.discord.auth.infra
+package com.jydev.discord.auth.infra.persistence
 
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
