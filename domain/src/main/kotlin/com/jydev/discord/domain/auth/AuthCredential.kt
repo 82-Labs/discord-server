@@ -6,9 +6,9 @@ class AuthCredential(
     val authProvider: AuthProvider
 ) {
     companion object {
-        fun create(provider: ProviderType, externalId: String, userId: Long? = null): AuthCredential {
+        fun create(authProvider: AuthProvider, userId: Long? = null): AuthCredential {
             return AuthCredential(
-                authProvider = AuthProvider(provider, ExternalId(externalId)),
+                authProvider = authProvider,
                 userId = userId
             )
         }
