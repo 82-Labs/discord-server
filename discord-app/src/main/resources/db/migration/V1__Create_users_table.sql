@@ -17,7 +17,7 @@ CREATE TABLE users (
 CREATE UNIQUE INDEX idx_users_username ON users(username);
 
 -- 인증 자격증명 테이블 (소셜 로그인 정보)
-CREATE TABLE auth_credentials (
+CREATE TABLE auth_credential (
     id BIGINT NOT NULL AUTO_INCREMENT,
     user_id BIGINT NULL COMMENT '연결된 사용자 ID (NULL일 경우 임시 사용자)',
     provider VARCHAR(50) NOT NULL COMMENT '소셜 로그인 제공자 (KAKAO, GOOGLE, NAVER 등)',
@@ -29,7 +29,7 @@ CREATE TABLE auth_credentials (
 );
 
 -- 외부ID + 제공자 유니크 인덱스 (소셜 로그인 중복 체크용)
-CREATE UNIQUE INDEX idx_auth_credentials_external_id_provider ON auth_credentials(external_id, provider);
+CREATE UNIQUE INDEX idx_auth_credentials_external_id_provider ON auth_credential(external_id, provider);
 
 -- user_id 인덱스 (조회 성능 향상)
-CREATE INDEX idx_auth_credentials_user_id ON auth_credentials(user_id);
+CREATE INDEX idx_auth_credentials_user_id ON auth_credential(user_id);

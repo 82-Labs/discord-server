@@ -58,7 +58,10 @@ class KakaoAuthClient(
                 .bodyToMono(KakaoTokenResponse::class.java)
                 .awaitSingle()
         } catch (e: WebClientResponseException) {
-            throw RuntimeException("카카오 토큰 요청 실패: ${e.statusCode}", e)
+            val errorBody = e.responseBodyAsString
+            throw RuntimeException("카카오 토큰 요청 실패 [${e.statusCode}]: $errorBody", e)
+        } catch (e: Exception) {
+            throw RuntimeException("카카오 API 연결 실패: ${e.message}", e)
         }
     }
     
@@ -71,7 +74,10 @@ class KakaoAuthClient(
                 .bodyToMono(KakaoTokenInfoResponse::class.java)
                 .awaitSingle()
         } catch (e: WebClientResponseException) {
-            throw RuntimeException("카카오 토큰 정보 조회 실패: ${e.statusCode}", e)
+            val errorBody = e.responseBodyAsString
+            throw RuntimeException("카카오 토큰 정보 조회 실패 [${e.statusCode}]: $errorBody", e)
+        } catch (e: Exception) {
+            throw RuntimeException("카카오 API 연결 실패: ${e.message}", e)
         }
     }
     
