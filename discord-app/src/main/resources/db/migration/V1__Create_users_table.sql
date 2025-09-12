@@ -13,6 +13,9 @@ CREATE TABLE users (
     PRIMARY KEY (id)
 );
 
+-- 사용자명 유니크 인덱스 (중복 체크용)
+CREATE UNIQUE INDEX idx_users_username ON users(username);
+
 -- 인증 자격증명 테이블 (소셜 로그인 정보)
 CREATE TABLE auth_credentials (
     id BIGINT NOT NULL AUTO_INCREMENT,
@@ -25,14 +28,8 @@ CREATE TABLE auth_credentials (
     PRIMARY KEY (id)
 );
 
-
--- 인덱스 생성
-
--- 1. 사용자명 유니크 인덱스 (중복 체크용)
-CREATE UNIQUE INDEX idx_users_username ON users(username);
-
--- 2. 외부ID + 제공자 유니크 인덱스 (소셜 로그인 중복 체크용)
+-- 외부ID + 제공자 유니크 인덱스 (소셜 로그인 중복 체크용)
 CREATE UNIQUE INDEX idx_auth_credentials_external_id_provider ON auth_credentials(external_id, provider);
 
--- 3. user_id 인덱스 (조회 성능 향상)
+-- user_id 인덱스 (조회 성능 향상)
 CREATE INDEX idx_auth_credentials_user_id ON auth_credentials(user_id);
