@@ -1,4 +1,4 @@
-package com.jydev.discord.auth.infra.config
+package com.jydev.discord.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jydev.discord.auth.infra.persistence.RefreshTokenDocument

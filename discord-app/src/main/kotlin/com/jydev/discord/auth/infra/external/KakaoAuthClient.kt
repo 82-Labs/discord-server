@@ -1,6 +1,7 @@
 package com.jydev.discord.auth.infra.external
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.jydev.discord.config.properties.KakaoAuthProperties
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
