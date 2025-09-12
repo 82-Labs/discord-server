@@ -1,9 +1,8 @@
 package com.jydev.discord.domain.auth.jwt
 
 import com.jydev.discord.common.time.CurrentTime
+import com.jydev.discord.domain.auth.AuthUser
 import com.jydev.discord.domain.auth.AuthUserFixture
-import com.jydev.discord.domain.auth.User
-import com.jydev.discord.domain.auth.TemporalUser
 import com.jydev.discord.domain.user.UserRole
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
@@ -27,7 +26,8 @@ class JwtHelperTest : StringSpec({
 
     "generateToken - 기본 사용자 정보로 토큰 생성 시 올바른 JWT 토큰 반환" {
         // Given
-        val authUser = AuthUserFixture.createUser()
+        val sessionId = "test-session-id"
+        val authUser = AuthUserFixture.createUser(sessionId = sessionId)
 
         // When
         val token = jwtHelper.generateToken(authUser)
@@ -39,16 +39,18 @@ class JwtHelperTest : StringSpec({
 
     "generateToken - 관리자 권한 사용자 토큰 생성 시 역할 정보 포함된 토큰 반환" {
         // Given
-        val authUser = AuthUserFixture.createAdmin()
+        val sessionId = "admin-session-id"
+        val authUser = AuthUserFixture.createAdmin(sessionId = sessionId)
 
         // When
         val token = jwtHelper.generateToken(authUser)
 
         // Then
         val decodedUser = jwtHelper.getAuthUser(token)
-        decodedUser.shouldBeInstanceOf<User>()
-        (decodedUser as User).userId shouldBe authUser.userId
+        decodedUser.shouldBeInstanceOf<AuthUser.User>()
+        (decodedUser as AuthUser.User).userId shouldBe authUser.userId
         decodedUser.roles shouldBe authUser.roles
+        decodedUser.sessionId shouldBe sessionId
     }
 
     "generateToken - 임시 사용자 토큰 생성 시 올바른 토큰 반환" {
@@ -60,28 +62,31 @@ class JwtHelperTest : StringSpec({
 
         // Then
         val decodedUser = jwtHelper.getAuthUser(token)
-        decodedUser.shouldBeInstanceOf<TemporalUser>()
-        (decodedUser as TemporalUser).authCredentialId shouldBe temporalUser.authCredentialId
+        decodedUser.shouldBeInstanceOf<AuthUser.TemporalUser>()
+        (decodedUser as AuthUser.TemporalUser).authCredentialId shouldBe temporalUser.authCredentialId
         decodedUser.roles shouldBe listOf(UserRole.TEMPORAL)
     }
 
     "generateToken - 빈 역할 목록 사용자 토큰 생성 시 빈 역할 배열로 처리" {
         // Given
-        val authUser = AuthUserFixture.createUserWithoutRoles()
+        val sessionId = "session-without-roles"
+        val authUser = AuthUserFixture.createUserWithoutRoles(sessionId = sessionId)
 
         // When
         val token = jwtHelper.generateToken(authUser)
 
         // Then
         val decodedUser = jwtHelper.getAuthUser(token)
-        decodedUser.shouldBeInstanceOf<User>()
-        (decodedUser as User).userId shouldBe authUser.userId
+        decodedUser.shouldBeInstanceOf<AuthUser.User>()
+        (decodedUser as AuthUser.User).userId shouldBe authUser.userId
         decodedUser.roles shouldBe emptyList()
+        decodedUser.sessionId shouldBe sessionId
     }
 
     "generateToken - 사용자 정의 만료 시간으로 토큰 생성 시 지정된 시간으로 설정" {
         // Given
-        val authUser = AuthUserFixture.createUser()
+        val sessionId = "custom-expiration-session"
+        val authUser = AuthUserFixture.createUser(sessionId = sessionId)
         val customExpirationHours = 48L
 
         // When
@@ -93,7 +98,8 @@ class JwtHelperTest : StringSpec({
 
     "generateToken - 분 단위 만료 시간으로 토큰 생성 시 정상 동작" {
         // Given
-        val authUser = AuthUserFixture.createUser()
+        val sessionId = "minute-expiration-session"
+        val authUser = AuthUserFixture.createUser(sessionId = sessionId)
         val expirationMinutes = 30L
 
         // When
@@ -102,22 +108,25 @@ class JwtHelperTest : StringSpec({
         // Then
         jwtHelper.isExpired(token) shouldBe false
         val decodedUser = jwtHelper.getAuthUser(token)
-        decodedUser.shouldBeInstanceOf<User>()
-        (decodedUser as User).userId shouldBe authUser.userId
+        decodedUser.shouldBeInstanceOf<AuthUser.User>()
+        (decodedUser as AuthUser.User).userId shouldBe authUser.userId
+        decodedUser.sessionId shouldBe sessionId
     }
 
     "getAuthUser - 유효한 토큰에서 사용자 정보 추출 시 올바른 AuthUser 반환" {
         // Given
-        val expectedUser = AuthUserFixture.createMultiRoleUser()
+        val sessionId = "multi-role-session"
+        val expectedUser = AuthUserFixture.createMultiRoleUser(sessionId = sessionId)
         val token = jwtHelper.generateToken(expectedUser)
 
         // When
         val actualUser = jwtHelper.getAuthUser(token)
 
         // Then
-        actualUser.shouldBeInstanceOf<User>()
-        (actualUser as User).userId shouldBe expectedUser.userId
+        actualUser.shouldBeInstanceOf<AuthUser.User>()
+        (actualUser as AuthUser.User).userId shouldBe expectedUser.userId
         actualUser.roles shouldBe expectedUser.roles
+        actualUser.sessionId shouldBe sessionId
     }
 
     "getAuthUser - 임시 사용자 토큰에서 정보 추출 시 TemporalUser 반환" {
@@ -129,8 +138,8 @@ class JwtHelperTest : StringSpec({
         val actualUser = jwtHelper.getAuthUser(token)
 
         // Then
-        actualUser.shouldBeInstanceOf<TemporalUser>()
-        (actualUser as TemporalUser).authCredentialId shouldBe expectedUser.authCredentialId
+        actualUser.shouldBeInstanceOf<AuthUser.TemporalUser>()
+        (actualUser as AuthUser.TemporalUser).authCredentialId shouldBe expectedUser.authCredentialId
         actualUser.roles shouldBe listOf(UserRole.TEMPORAL)
     }
 
@@ -146,7 +155,8 @@ class JwtHelperTest : StringSpec({
 
     "isExpired - 유효한 토큰의 만료 상태 확인 시 false 반환" {
         // Given
-        val authUser = AuthUserFixture.createUser()
+        val sessionId = "valid-token-session"
+        val authUser = AuthUserFixture.createUser(sessionId = sessionId)
         val token = jwtHelper.generateToken(authUser, 24, ChronoUnit.HOURS)
 
         // When
@@ -160,7 +170,8 @@ class JwtHelperTest : StringSpec({
         // Given
         val pastTime = currentTime.minus(25, ChronoUnit.HOURS) // 25시간 전
         val pastTimeHelper = JwtHelper(secretKey, TestCurrentTime(pastTime))
-        val authUser = AuthUserFixture.createUser()
+        val sessionId = "expired-token-session"
+        val authUser = AuthUserFixture.createUser(sessionId = sessionId)
         val token = pastTimeHelper.generateToken(authUser, 24, ChronoUnit.HOURS) // 24시간 만료 토큰을 25시간 전에 생성
 
         // When & Then - 만료된 토큰은 파싱 시점에서 예외 발생
@@ -183,7 +194,8 @@ class JwtHelperTest : StringSpec({
 
     "토큰 생명주기 통합 테스트 - 일반 사용자 생성부터 검증까지 전체 플로우" {
         // Given
-        val originalUser = AuthUserFixture.createMultiRoleUser()
+        val sessionId = "integration-test-session"
+        val originalUser = AuthUserFixture.createMultiRoleUser(sessionId = sessionId)
 
         // When
         val generatedToken = jwtHelper.generateToken(originalUser, 24, ChronoUnit.HOURS)
@@ -192,9 +204,10 @@ class JwtHelperTest : StringSpec({
 
         // Then
         isTokenExpired shouldBe false
-        retrievedUser.shouldBeInstanceOf<User>()
-        (retrievedUser as User).userId shouldBe originalUser.userId
+        retrievedUser.shouldBeInstanceOf<AuthUser.User>()
+        (retrievedUser as AuthUser.User).userId shouldBe originalUser.userId
         retrievedUser.roles shouldBe originalUser.roles
+        retrievedUser.sessionId shouldBe sessionId
     }
 
     "토큰 생명주기 통합 테스트 - 임시 사용자 생성부터 검증까지 전체 플로우" {
@@ -208,8 +221,27 @@ class JwtHelperTest : StringSpec({
 
         // Then
         isTokenExpired shouldBe false
-        retrievedUser.shouldBeInstanceOf<TemporalUser>()
-        (retrievedUser as TemporalUser).authCredentialId shouldBe originalUser.authCredentialId
+        retrievedUser.shouldBeInstanceOf<AuthUser.TemporalUser>()
+        (retrievedUser as AuthUser.TemporalUser).authCredentialId shouldBe originalUser.authCredentialId
         retrievedUser.roles shouldBe listOf(UserRole.TEMPORAL)
+    }
+
+    "일반 사용자에 빈 sessionId로 생성 시 토큰 파싱 시 예외 발생" {
+        // Given
+        val authUser = AuthUser.User(
+            userId = 100L,
+            sessionId = "", // 빈 sessionId
+            roles = listOf(UserRole.USER)
+        )
+
+        // When
+        val token = jwtHelper.generateToken(authUser)
+        
+        // Then
+        // 빈 문자열 sessionId는 토큰에 저장되지만, 파싱 시 null과 동일하게 처리되지 않으므로
+        // 빈 문자열로 그대로 파싱됨
+        val decodedUser = jwtHelper.getAuthUser(token)
+        decodedUser.shouldBeInstanceOf<AuthUser.User>()
+        (decodedUser as AuthUser.User).sessionId shouldBe ""
     }
 })

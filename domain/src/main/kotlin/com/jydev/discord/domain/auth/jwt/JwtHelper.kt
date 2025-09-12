@@ -2,8 +2,6 @@ package com.jydev.discord.domain.auth.jwt
 
 import com.jydev.discord.common.time.CurrentTime
 import com.jydev.discord.domain.auth.AuthUser
-import com.jydev.discord.domain.auth.User
-import com.jydev.discord.domain.auth.TemporalUser
 import com.jydev.discord.domain.user.UserRole
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -22,35 +20,45 @@ class JwtHelper(
     
     companion object {
         private const val CLAIM_ROLES = "roles"
+        private const val CLAIM_SESSION_ID = "session-id"
     }
     
     fun generateToken(
-        authUser: AuthUser, 
+        authUser: AuthUser,
         expiration: Long = 15,
         unit: TemporalUnit = ChronoUnit.MINUTES
     ): String {
-        
-        return Jwts.builder()
+        val tokenBuilder = Jwts.builder()
             .subject(authUser.id.toString())
             .claim(CLAIM_ROLES, authUser.roles.map { it.name })
             .issuedAt(Date.from(currentTime.now()))
             .expiration(Date.from(currentTime.now().plus(expiration, unit)))
             .signWith(key)
-            .compact()
+
+        if(authUser is AuthUser.User) {
+            tokenBuilder.claim(CLAIM_SESSION_ID, authUser.sessionId)
+        }
+
+        return tokenBuilder.compact()
     }
     
     
     fun getAuthUser(token: String): AuthUser {
         val claims = parseToken(token)
         val id = extractUserId(claims)
+        val sessionId = extractSessionId(claims)
         val roles = extractRoles(claims)
         
-        return createAuthUser(id, roles)
+        return createAuthUser(id, sessionId, roles)
     }
     
     private fun extractUserId(claims: Claims): Long {
         return claims.subject?.toLongOrNull() 
             ?: throw IllegalArgumentException("유효하지 않은 토큰: subject가 없거나 잘못되었습니다")
+    }
+
+    private fun extractSessionId(claims: Claims): String? {
+        return claims[CLAIM_SESSION_ID] as? String
     }
     
     private fun extractRoles(claims: Claims): List<UserRole> {
@@ -67,11 +75,12 @@ class JwtHelper(
         }
     }
     
-    private fun createAuthUser(id: Long, roles: List<UserRole>): AuthUser {
+    private fun createAuthUser(id: Long, sessionId: String?, roles: List<UserRole>): AuthUser {
         return if (roles.contains(UserRole.TEMPORAL)) {
-            TemporalUser(authCredentialId = id)
+            AuthUser.TemporalUser(authCredentialId = id)
         } else {
-            User(userId = id, roles = roles)
+            requireNotNull(sessionId) { "SessionId가 존재하지 않습니다." }
+            AuthUser.User(userId = id, roles = roles, sessionId = sessionId)
         }
     }
     

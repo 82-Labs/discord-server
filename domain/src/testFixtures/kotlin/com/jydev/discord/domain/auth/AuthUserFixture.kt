@@ -6,24 +6,28 @@ object AuthUserFixture {
     
     fun createUser(
         userId: Long = 1L,
+        sessionId: String = "session-$userId",
         roles: List<UserRole> = listOf(UserRole.USER)
-    ): User = User(userId, roles)
+    ): AuthUser.User = AuthUser.User(userId, sessionId, roles)
     
     fun createAdmin(
         userId: Long = 2L,
+        sessionId: String = "admin-session-$userId",
         roles: List<UserRole> = listOf(UserRole.ADMIN, UserRole.USER)
-    ): User = User(userId, roles)
+    ): AuthUser.User = AuthUser.User(userId, sessionId, roles)
     
     fun createTemporalUser(
         authCredentialId: Long = 999L
-    ): TemporalUser = TemporalUser(authCredentialId)
+    ): AuthUser.TemporalUser = AuthUser.TemporalUser(authCredentialId)
     
     fun createUserWithoutRoles(
-        userId: Long = 6L
-    ): User = User(userId, emptyList())
+        userId: Long = 6L,
+        sessionId: String = "session-$userId"
+    ): AuthUser.User = AuthUser.User(userId, sessionId, emptyList())
     
     fun createMultiRoleUser(
         userId: Long = 12345L,
+        sessionId: String = "multi-role-session-$userId",
         roles: List<UserRole> = listOf(UserRole.USER, UserRole.ADMIN)
-    ): User = User(userId, roles)
+    ): AuthUser.User = AuthUser.User(userId, sessionId, roles)
 }

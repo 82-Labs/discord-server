@@ -5,6 +5,9 @@ class AuthCredential(
     val userId : Long? = null,
     val authProvider: AuthProvider
 ) {
+
+    fun isNotTemporal() = userId != null
+
     companion object {
         fun create(authProvider: AuthProvider, userId: Long? = null): AuthCredential {
             return AuthCredential(
