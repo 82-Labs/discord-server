@@ -1,4 +1,4 @@
-package com.jydev.discord.auth.kakao.infra.external
+package com.jydev.discord.auth.infra.external
 
 data class KakaoAuthResult(
     val userId: Long,

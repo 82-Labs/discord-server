@@ -1,4 +1,4 @@
-package com.jydev.discord.auth.kakao.infra.external
+package com.jydev.discord.auth.infra.external
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component

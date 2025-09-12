@@ -1,8 +1,7 @@
-package com.jydev.discord.auth.kakao.applicaiton
+package com.jydev.discord.auth.application
 
-import com.jydev.discord.auth.application.AuthProviderResolver
 import com.jydev.discord.auth.application.dto.AuthRequest
-import com.jydev.discord.auth.kakao.infra.external.KakaoAuthClient
+import com.jydev.discord.auth.infra.external.KakaoAuthClient
 import com.jydev.discord.domain.auth.AuthProvider
 import com.jydev.discord.domain.auth.ExternalId
 import com.jydev.discord.domain.auth.ProviderType

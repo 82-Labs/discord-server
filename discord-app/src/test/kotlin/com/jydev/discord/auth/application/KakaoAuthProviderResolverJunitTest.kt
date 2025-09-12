@@ -1,9 +1,8 @@
-package com.jydev.discord.auth.kakao.application
+package com.jydev.discord.auth.application
 
 import com.jydev.discord.auth.application.dto.AuthRequest
-import com.jydev.discord.auth.kakao.applicaiton.KakaoAuthProviderResolver
-import com.jydev.discord.auth.kakao.infra.external.KakaoAuthClient
-import com.jydev.discord.auth.kakao.infra.external.KakaoAuthResult
+import com.jydev.discord.auth.infra.external.KakaoAuthClient
+import com.jydev.discord.auth.infra.external.KakaoAuthResult
 import com.jydev.discord.domain.auth.ProviderType
 import io.mockk.coEvery
 import io.mockk.coVerify

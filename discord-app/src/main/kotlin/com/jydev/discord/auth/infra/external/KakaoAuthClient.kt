@@ -1,4 +1,4 @@
-package com.jydev.discord.auth.kakao.infra.external
+package com.jydev.discord.auth.infra.external
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.coroutines.reactor.awaitSingle
