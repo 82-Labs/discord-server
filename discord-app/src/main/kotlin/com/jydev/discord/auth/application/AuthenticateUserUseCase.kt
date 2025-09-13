@@ -1,7 +1,7 @@
 package com.jydev.discord.auth.application
 
-import com.jydev.discord.auth.application.dto.AuthRequest
-import com.jydev.discord.auth.application.dto.TokenInfo
+import com.jydev.discord.auth.application.dto.AuthCommand
+import com.jydev.discord.auth.application.dto.AuthResult
 import com.jydev.discord.common.transaction.Tx
 import com.jydev.discord.domain.auth.*
 import com.jydev.discord.domain.auth.jwt.JwtHelper
@@ -23,11 +23,11 @@ class AuthenticateUserUseCase(
         const val ACCESS_TOKEN_EXPIRATION = 15L
     }
 
-    suspend operator fun invoke(authRequest: AuthRequest): TokenInfo {
-        val resolver = authProviderResolvers.find { it.supports(authRequest.provider) }
-            ?: throw IllegalArgumentException("지원하는 Provider가 없습니다 : ${authRequest.provider}")
+    suspend operator fun invoke(authCommand: AuthCommand): AuthResult {
+        val resolver = authProviderResolvers.find { it.supports(authCommand.provider) }
+            ?: throw IllegalArgumentException("지원하는 Provider가 없습니다 : ${authCommand.provider}")
 
-        val authProvider = resolver.authenticate(authRequest)
+        val authProvider = resolver.authenticate(authCommand)
 
         return Tx.write {
             val authCredential = authCredentialRepository.findByAuthProvider(authProvider)
@@ -40,7 +40,7 @@ class AuthenticateUserUseCase(
                 val refreshToken = RefreshToken.create(
                     userId = user.id!!,
                     expirationDays = REFRESH_TOKEN_EXPIRATION
-                ).also {
+                ).let {
                     refreshTokenRepository.save(it)
                 }
 
@@ -61,7 +61,7 @@ class AuthenticateUserUseCase(
                 unit = ChronoUnit.MINUTES
             )
 
-            TokenInfo(accessToken = accessToken, refreshToken = refreshToken?.token)
+            AuthResult(accessToken = accessToken, refreshToken = refreshToken?.token)
         }
     }
 

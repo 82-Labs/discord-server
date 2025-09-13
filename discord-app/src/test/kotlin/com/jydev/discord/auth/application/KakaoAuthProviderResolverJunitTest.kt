@@ -1,6 +1,6 @@
 package com.jydev.discord.auth.application
 
-import com.jydev.discord.auth.application.dto.AuthRequest
+import com.jydev.discord.auth.application.dto.AuthCommand
 import com.jydev.discord.auth.infra.external.KakaoAuthClient
 import com.jydev.discord.auth.infra.external.KakaoAuthResult
 import com.jydev.discord.domain.auth.ProviderType
@@ -21,7 +21,7 @@ class KakaoAuthProviderResolverJunitTest {
     fun `authenticate - Kakao 요청 처리 시 올바른 AuthProvider 반환`() = runBlocking {
         // Given
         val code = "test-kakao-auth-code"
-        val request = AuthRequest.Kakao(code)
+        val request = AuthCommand.Kakao(code)
         val expectedUserId = 123456789L
         val kakaoAuthResult = KakaoAuthResult(
             userId = expectedUserId,
@@ -59,7 +59,7 @@ class KakaoAuthProviderResolverJunitTest {
     fun `authenticate - KakaoAuthClient 예외 발생 시 예외 전파`() = runBlocking {
         // Given
         val code = "invalid-code"
-        val request = AuthRequest.Kakao(code)
+        val request = AuthCommand.Kakao(code)
         val expectedError = RuntimeException("카카오 인증 실패")
         
         coEvery { kakaoAuthClient.authenticate(code) } throws expectedError
@@ -95,7 +95,7 @@ class KakaoAuthProviderResolverJunitTest {
     fun `authenticate - 빈 코드로 요청 시 KakaoAuthClient에 그대로 전달`() = runBlocking {
         // Given
         val emptyCode = ""
-        val request = AuthRequest.Kakao(emptyCode)
+        val request = AuthCommand.Kakao(emptyCode)
         val kakaoAuthResult = KakaoAuthResult(
             userId = 111L,
             accessToken = "token",
@@ -119,7 +119,7 @@ class KakaoAuthProviderResolverJunitTest {
     fun `authenticate - 매우 큰 userId 처리 확인`() = runBlocking {
         // Given
         val code = "test-code"
-        val request = AuthRequest.Kakao(code)
+        val request = AuthCommand.Kakao(code)
         val largeUserId = Long.MAX_VALUE
         val kakaoAuthResult = KakaoAuthResult(
             userId = largeUserId,
@@ -142,7 +142,7 @@ class KakaoAuthProviderResolverJunitTest {
     fun `authenticate - 음수 userId 처리 확인`() = runBlocking {
         // Given
         val code = "test-code"
-        val request = AuthRequest.Kakao(code)
+        val request = AuthCommand.Kakao(code)
         val negativeUserId = -1L
         val kakaoAuthResult = KakaoAuthResult(
             userId = negativeUserId,
@@ -165,7 +165,7 @@ class KakaoAuthProviderResolverJunitTest {
     fun `authenticate - 다양한 expiresIn 값 처리 확인`() = runBlocking {
         // Given
         val code = "test-code"
-        val request = AuthRequest.Kakao(code)
+        val request = AuthCommand.Kakao(code)
         val kakaoAuthResult = KakaoAuthResult(
             userId = 999L,
             accessToken = "short-lived-token",

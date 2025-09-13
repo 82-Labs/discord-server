@@ -9,6 +9,10 @@ import org.springframework.stereotype.Repository
 class AuthCredentialRepositoryAdapter(
     private val r2dbcAuthCredentialRepository: R2dbcAuthCredentialRepository
 ) : AuthCredentialRepository {
+    override suspend fun findById(id: Long): AuthCredential? {
+        return r2dbcAuthCredentialRepository.findById(id)?.toDomain()
+    }
+
     override suspend fun findByUserId(userId: Long): AuthCredential? {
         return r2dbcAuthCredentialRepository.findByUserId(userId)?.toDomain()
     }

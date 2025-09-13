@@ -1,6 +1,6 @@
 package com.jydev.discord.auth.application
 
-import com.jydev.discord.auth.application.dto.AuthRequest
+import com.jydev.discord.auth.application.dto.AuthCommand
 import com.jydev.discord.common.transaction.Tx
 import com.jydev.discord.common.transaction.TxAdvice
 import com.jydev.discord.domain.auth.*
@@ -12,7 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import org.springframework.test.util.ReflectionTestUtils
 import java.time.temporal.ChronoUnit
 
 class AuthenticateUserUseCaseTest : DescribeSpec({
@@ -36,7 +35,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
 
             // Tx 초기화를 위한 설정
             val tx = Tx(mockTxAdvice)
-            
+
             // TxAdvice가 실제로 블록을 실행하도록 설정
             coEvery { mockTxAdvice.write(any<suspend () -> Any>()) } coAnswers {
                 val block = firstArg<suspend () -> Any>()
@@ -59,7 +58,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
         context("기존 사용자가 인증할 때") {
             it("액세스 토큰과 리프레시 토큰을 포함한 TokenInfo를 반환한다") {
                 // given
-                val authRequest = AuthRequest.Kakao(code = "test-code")
+                val authCommand = AuthCommand.Kakao(code = "test-code")
                 val authProvider = AuthProvider(
                     type = ProviderType.KAKAO,
                     externalId = ExternalId("kakao123")
@@ -78,7 +77,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 val accessToken = "generated-access-token"
 
                 every { mockAuthProviderResolver.supports(ProviderType.KAKAO) } returns true
-                coEvery { mockAuthProviderResolver.authenticate(authRequest) } returns authProvider
+                coEvery { mockAuthProviderResolver.authenticate(authCommand) } returns authProvider
                 coEvery { mockAuthCredentialRepository.findByAuthProvider(authProvider) } returns authCredential
                 coEvery { mockUserRepository.findByUserId(100L) } returns user
                 coEvery { mockRefreshTokenRepository.save(any()) } returnsArgument 0
@@ -91,14 +90,14 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 } returns accessToken
 
                 // when
-                val result = runBlocking { useCase(authRequest) }
+                val result = runBlocking { useCase(authCommand) }
 
                 // then
                 result.accessToken shouldBe accessToken
                 result.refreshToken shouldNotBe null
                 
                 coVerify(exactly = 1) {
-                    mockAuthProviderResolver.authenticate(authRequest)
+                    mockAuthProviderResolver.authenticate(authCommand)
                     mockAuthCredentialRepository.findByAuthProvider(authProvider)
                     mockUserRepository.findByUserId(100L)
                     mockRefreshTokenRepository.save(any())
@@ -112,7 +111,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
 
             it("사용자가 없으면 RuntimeException을 던진다") {
                 // given
-                val authRequest = AuthRequest.Kakao(code = "test-code")
+                val authCommand = AuthCommand.Kakao(code = "test-code")
                 val authProvider = AuthProvider(
                     type = ProviderType.KAKAO,
                     externalId = ExternalId("kakao123")
@@ -124,13 +123,13 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 )
 
                 every { mockAuthProviderResolver.supports(ProviderType.KAKAO) } returns true
-                coEvery { mockAuthProviderResolver.authenticate(authRequest) } returns authProvider
+                coEvery { mockAuthProviderResolver.authenticate(authCommand) } returns authProvider
                 coEvery { mockAuthCredentialRepository.findByAuthProvider(authProvider) } returns authCredential
                 coEvery { mockUserRepository.findByUserId(100L) } returns null
 
                 // when & then
                 val exception = shouldThrow<RuntimeException> {
-                    runBlocking { useCase(authRequest) }
+                    runBlocking { useCase(authCommand) }
                 }
                 exception.message shouldBe "User가 존재하지 않습니다. userId : 100"
             }
@@ -139,7 +138,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
         context("신규 사용자(임시 사용자)가 인증할 때") {
             it("리프레시 토큰 없이 임시 액세스 토큰만 반환한다") {
                 // given
-                val authRequest = AuthRequest.Kakao(code = "test-code")
+                val authCommand = AuthCommand.Kakao(code = "test-code")
                 val authProvider = AuthProvider(
                     type = ProviderType.KAKAO,
                     externalId = ExternalId("kakao456")
@@ -147,7 +146,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 val temporalAccessToken = "temporal-access-token"
 
                 every { mockAuthProviderResolver.supports(ProviderType.KAKAO) } returns true
-                coEvery { mockAuthProviderResolver.authenticate(authRequest) } returns authProvider
+                coEvery { mockAuthProviderResolver.authenticate(authCommand) } returns authProvider
                 coEvery { mockAuthCredentialRepository.findByAuthProvider(authProvider) } returns null
                 coEvery { mockAuthCredentialRepository.save(any()) } answers {
                     val credential = firstArg<AuthCredential>()
@@ -166,14 +165,14 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 } returns temporalAccessToken
 
                 // when
-                val result = runBlocking { useCase(authRequest) }
+                val result = runBlocking { useCase(authCommand) }
 
                 // then
                 result.accessToken shouldBe temporalAccessToken
                 result.refreshToken shouldBe null
                 
                 coVerify(exactly = 1) {
-                    mockAuthProviderResolver.authenticate(authRequest)
+                    mockAuthProviderResolver.authenticate(authCommand)
                     mockAuthCredentialRepository.findByAuthProvider(authProvider)
                     mockAuthCredentialRepository.save(any())
                     mockJwtHelper.generateToken(
@@ -193,13 +192,13 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
         context("Provider 지원") {
             it("지원하지 않는 Provider인 경우 IllegalArgumentException을 던진다") {
                 // given
-                val authRequest = AuthRequest.Kakao(code = "test-code")
+                val authCommand = AuthCommand.Kakao(code = "test-code")
                 
                 every { mockAuthProviderResolver.supports(ProviderType.KAKAO) } returns false
 
                 // when & then
                 val exception = shouldThrow<IllegalArgumentException> {
-                    runBlocking { useCase(authRequest) }
+                    runBlocking { useCase(authCommand) }
                 }
                 exception.message shouldBe "지원하는 Provider가 없습니다 : KAKAO"
             }
@@ -217,7 +216,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                     jwtHelper = mockJwtHelper
                 )
                 
-                val authRequest = AuthRequest.Kakao(code = "test-code")
+                val authCommand = AuthCommand.Kakao(code = "test-code")
                 val authProvider = AuthProvider(
                     type = ProviderType.KAKAO,
                     externalId = ExternalId("kakao789")
@@ -237,7 +236,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
 
                 every { mockNaverResolver.supports(ProviderType.KAKAO) } returns false
                 every { mockKakaoResolver.supports(ProviderType.KAKAO) } returns true
-                coEvery { mockKakaoResolver.authenticate(authRequest) } returns authProvider
+                coEvery { mockKakaoResolver.authenticate(authCommand) } returns authProvider
                 coEvery { mockAuthCredentialRepository.findByAuthProvider(authProvider) } returns authCredential
                 coEvery { mockUserRepository.findByUserId(300L) } returns user
                 coEvery { mockRefreshTokenRepository.save(any()) } returnsArgument 0
@@ -250,14 +249,14 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 } returns accessToken
 
                 // when
-                val result = runBlocking { useCaseWithMultipleResolvers(authRequest) }
+                val result = runBlocking { useCaseWithMultipleResolvers(authCommand) }
 
                 // then
                 result.accessToken shouldBe accessToken
                 result.refreshToken shouldNotBe null
                 
                 coVerify(exactly = 1) {
-                    mockKakaoResolver.authenticate(authRequest)
+                    mockKakaoResolver.authenticate(authCommand)
                 }
                 
                 coVerify(exactly = 0) {
@@ -269,7 +268,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
         context("RefreshToken 생성") {
             it("기존 사용자 인증 시 RefreshToken이 올바르게 생성된다") {
                 // given
-                val authRequest = AuthRequest.Kakao(code = "test-code")
+                val authCommand = AuthCommand.Kakao(code = "test-code")
                 val authProvider = AuthProvider(
                     type = ProviderType.KAKAO,
                     externalId = ExternalId("kakao999")
@@ -289,7 +288,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 var savedRefreshToken: RefreshToken? = null
 
                 every { mockAuthProviderResolver.supports(ProviderType.KAKAO) } returns true
-                coEvery { mockAuthProviderResolver.authenticate(authRequest) } returns authProvider
+                coEvery { mockAuthProviderResolver.authenticate(authCommand) } returns authProvider
                 coEvery { mockAuthCredentialRepository.findByAuthProvider(authProvider) } returns authCredential
                 coEvery { mockUserRepository.findByUserId(400L) } returns user
                 coEvery { mockRefreshTokenRepository.save(any()) } answers {
@@ -305,7 +304,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 } returns accessToken
 
                 // when
-                val result = runBlocking { useCase(authRequest) }
+                val result = runBlocking { useCase(authCommand) }
 
                 // then
                 savedRefreshToken shouldNotBe null
@@ -323,7 +322,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
         context("AuthUser 타입별 토큰 만료 시간") {
             it("일반 사용자는 ACCESS_TOKEN_EXPIRATION 시간으로 토큰이 생성된다") {
                 // given
-                val authRequest = AuthRequest.Kakao(code = "test-code")
+                val authCommand = AuthCommand.Kakao(code = "test-code")
                 val authProvider = AuthProvider(
                     type = ProviderType.KAKAO,
                     externalId = ExternalId("kakao111")
@@ -342,7 +341,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 val accessToken = "normal-access-token"
 
                 every { mockAuthProviderResolver.supports(ProviderType.KAKAO) } returns true
-                coEvery { mockAuthProviderResolver.authenticate(authRequest) } returns authProvider
+                coEvery { mockAuthProviderResolver.authenticate(authCommand) } returns authProvider
                 coEvery { mockAuthCredentialRepository.findByAuthProvider(authProvider) } returns authCredential
                 coEvery { mockUserRepository.findByUserId(500L) } returns user
                 coEvery { mockRefreshTokenRepository.save(any()) } returnsArgument 0
@@ -355,7 +354,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 } returns accessToken
 
                 // when
-                runBlocking { useCase(authRequest) }
+                runBlocking { useCase(authCommand) }
 
                 // then
                 coVerify(exactly = 1) {
@@ -369,7 +368,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
 
             it("임시 사용자는 TEMPORAL_ACCESS_TOKEN_EXPIRATION 시간으로 토큰이 생성된다") {
                 // given
-                val authRequest = AuthRequest.Kakao(code = "test-code")
+                val authCommand = AuthCommand.Kakao(code = "test-code")
                 val authProvider = AuthProvider(
                     type = ProviderType.KAKAO,
                     externalId = ExternalId("kakao222")
@@ -377,7 +376,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 val temporalAccessToken = "temporal-token"
 
                 every { mockAuthProviderResolver.supports(ProviderType.KAKAO) } returns true
-                coEvery { mockAuthProviderResolver.authenticate(authRequest) } returns authProvider
+                coEvery { mockAuthProviderResolver.authenticate(authCommand) } returns authProvider
                 coEvery { mockAuthCredentialRepository.findByAuthProvider(authProvider) } returns null
                 coEvery { mockAuthCredentialRepository.save(any()) } answers {
                     val credential = firstArg<AuthCredential>()
@@ -396,7 +395,7 @@ class AuthenticateUserUseCaseTest : DescribeSpec({
                 } returns temporalAccessToken
 
                 // when
-                runBlocking { useCase(authRequest) }
+                runBlocking { useCase(authCommand) }
 
                 // then
                 coVerify(exactly = 1) {

@@ -1,17 +1,12 @@
 package com.jydev.discord.auth.api
 
 import com.jydev.discord.auth.application.AuthenticateUserUseCase
-import com.jydev.discord.auth.application.dto.AuthRequest
+import com.jydev.discord.auth.application.dto.AuthCommand
 import com.jydev.discord.auth.api.dto.KakaoAuthRequest
 import com.jydev.discord.auth.api.dto.TokenResponse
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -30,8 +25,8 @@ class AuthController(
     suspend fun authenticateWithKakao(
         @Valid @RequestBody request: KakaoAuthRequest
     ): ResponseEntity<TokenResponse> {
-        val authRequest = AuthRequest.Kakao(code = request.code)
-        val tokenInfo = authenticateUserUseCase(authRequest)
+        val authCommand = AuthCommand.Kakao(code = request.code)
+        val tokenInfo = authenticateUserUseCase(authCommand)
         
         return ResponseEntity.ok(
             TokenResponse(
