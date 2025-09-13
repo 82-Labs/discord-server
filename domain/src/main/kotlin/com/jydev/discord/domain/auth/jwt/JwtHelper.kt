@@ -52,6 +52,15 @@ class JwtHelper(
         return createAuthUser(id, sessionId, roles)
     }
     
+    fun getAuthUserIgnoringExpiration(token: String): AuthUser {
+        val claims = parseTokenIgnoringExpiration(token)
+        val id = extractUserId(claims)
+        val sessionId = extractSessionId(claims)
+        val roles = extractRoles(claims)
+        
+        return createAuthUser(id, sessionId, roles)
+    }
+    
     private fun extractUserId(claims: Claims): Long {
         return claims.subject?.toLongOrNull() 
             ?: throw IllegalArgumentException("유효하지 않은 토큰: subject가 없거나 잘못되었습니다")
@@ -98,4 +107,17 @@ class JwtHelper(
             .build()
             .parseSignedClaims(token)
             .payload
+    
+    private fun parseTokenIgnoringExpiration(token: String): Claims {
+        return try {
+            Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+        } catch (e: io.jsonwebtoken.ExpiredJwtException) {
+            // 만료된 경우에도 claims 반환
+            e.claims
+        }
+    }
 }

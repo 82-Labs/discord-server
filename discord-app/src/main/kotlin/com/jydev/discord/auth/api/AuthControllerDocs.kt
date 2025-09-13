@@ -1,7 +1,10 @@
 package com.jydev.discord.auth.api
 
 import com.jydev.discord.auth.api.dto.KakaoAuthRequest
+import com.jydev.discord.auth.api.dto.RefreshTokenRequest
+import com.jydev.discord.auth.api.dto.RefreshTokenResponse
 import com.jydev.discord.auth.api.dto.TokenResponse
+import com.jydev.discord.common.swagger.AuthenticatedApiResponses
 import com.jydev.discord.common.swagger.CommonErrorResponses
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -29,4 +32,30 @@ interface AuthControllerDocs {
     suspend fun authenticateWithKakao(
         request: KakaoAuthRequest
     ): TokenResponse
+
+    @Operation(
+        summary = "Refresh Token",
+        description = """
+            리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다.
+            
+            **처리 프로세스:**
+            - 액세스 토큰에서 사용자 정보 추출 (만료 무시)
+            - 리프레시 토큰 유효성 검증
+            - 보안 검증 (세션/사용자 일치 여부)
+            - 새로운 액세스 토큰 및 리프레시 토큰 발급
+            
+            **에러 케이스:**
+            - 임시 사용자는 토큰 갱신 불가
+            - 리프레시 토큰 만료 시 재로그인 필요
+            - 세션/사용자 불일치 시 보안 위협으로 간주하여 토큰 삭제
+            
+            **보안 정책:**
+            - 세션 불일치: 현재 사용자의 토큰 삭제
+            - 사용자 불일치: 관련된 모든 사용자의 토큰 삭제
+        """
+    )
+    @AuthenticatedApiResponses
+    suspend fun refreshToken(
+        request: RefreshTokenRequest
+    ): RefreshTokenResponse
 }

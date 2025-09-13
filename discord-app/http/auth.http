@@ -3,5 +3,14 @@ POST http://localhost:8080/api/v1/auth/kakao
 Content-Type: application/json
 
 {
-  "code": "nyoQpzRUaGWobjlovL8CklFvn-JtzLHfLMbyf648l2z21RgRPnacAQAAAAQKFwFQAAABmT5GgcjkNSpXBP-m7Q"
+  "code": "CJb_XHv08FnaXPTCNKno2vE7qwobWdC6iY6zx4V5idoZXrBVDm6DpwAAAAQKFwEPAAABmUNaZgKGtS2__sNdBQ"
+}
+
+### 토큰 갱신
+POST http://localhost:8080/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiVVNFUiJdLCJpYXQiOjE3NTc3NzE2MzMsImV4cCI6MTc1Nzc3MjUzMywic2Vzc2lvbi1pZCI6IjEwOWE5NmEwLTVlYWItNDM0Yy04YzQxLTMwNjEyMDhiZjM3NSJ9.MhAbCu5yV-IpQyhGER2v08uY_YIcmyUqUkX-OW2ad3RQIDM-yFLDe_LSsAmGlycqnOFjEWHcDA2tMuovQVaBmg",
+  "refreshToken": "a1cf955d-c150-4b47-80bb-93e6ac477d15"
 }

@@ -11,4 +11,5 @@ fun ErrorCode.toHttpStatus(): HttpStatus = when (this) {
     ErrorCode.CONFLICT -> HttpStatus.CONFLICT
     ErrorCode.INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR
     ErrorCode.USERNAME_DUPLICATE -> HttpStatus.BAD_REQUEST
+    ErrorCode.TOKEN_EXPIRED -> HttpStatus.UNAUTHORIZED
 }

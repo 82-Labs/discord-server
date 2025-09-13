@@ -1,5 +1,6 @@
 package com.jydev.discord.domain.auth
 
+import com.jydev.discord.common.time.CurrentTime
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -41,6 +42,10 @@ class RefreshToken(
     fun refresh(expiration : Long) {
         session.rotation()
         expiredAt = calculateExpiredAt(expiration)
+    }
+
+    fun isExpired(currentTime: CurrentTime) : Boolean {
+        return currentTime.now().isAfter(expiredAt)
     }
 
     private fun calculateExpiredAt(expiration: Long): Instant =
