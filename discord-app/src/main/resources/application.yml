@@ -31,10 +31,17 @@ app:
     public-urls:
       - "/api/v1/auth/**"
       - "/actuator/health"
-      - "/api/test/public"
-      - "/swagger-ui/**"
-      - "/swagger-ui.html"
+      - "/api-docs"
+      - "/webjars/**"
       - "/v3/api-docs/**"
+
+springdoc:
+  swagger-ui:
+    path: /api-docs
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
 
 kakao:
   auth:

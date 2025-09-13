@@ -1,0 +1,14 @@
+### Swagger API Docs (JSON)
+GET http://localhost:8080/v3/api-docs
+
+### Swagger UI - 기본 경로들 시도
+GET http://localhost:8080/swagger-ui.html
+
+### Swagger UI - index.html
+GET http://localhost:8080/swagger-ui/index.html
+
+### Swagger UI - WebFlux 기본 경로
+GET http://localhost:8080/webjars/swagger-ui/index.html
+
+### Actuator로 모든 매핑 확인
+GET http://localhost:8080/actuator/mappings
