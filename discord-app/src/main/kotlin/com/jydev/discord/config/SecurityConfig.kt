@@ -2,10 +2,14 @@ package com.jydev.discord.config
 
 import com.jydev.discord.security.CustomAccessDeniedHandler
 import com.jydev.discord.security.CustomAuthenticationEntryPoint
+import com.jydev.discord.security.CustomReactiveAuthenticationManager
+import com.jydev.discord.security.JwtAuthenticationWebFilter
 import com.jydev.discord.config.properties.SecurityProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.web.cors.CorsConfiguration
@@ -17,7 +21,8 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 class SecurityConfig(
     private val securityProperties: SecurityProperties,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
-    private val customAccessDeniedHandler: CustomAccessDeniedHandler
+    private val customAccessDeniedHandler: CustomAccessDeniedHandler,
+    private val jwtAuthenticationWebFilter: JwtAuthenticationWebFilter
 ) {
 
     @Bean
@@ -27,6 +32,7 @@ class SecurityConfig(
             .formLogin { formLogin -> formLogin.disable() }
             .httpBasic { httpBasic -> httpBasic.disable() }
             .cors { cors -> cors.configurationSource(corsConfigurationSource()) }
+            .addFilterAt(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             .exceptionHandling { exceptions ->
                 exceptions
                     .authenticationEntryPoint(customAuthenticationEntryPoint)
