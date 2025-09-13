@@ -42,10 +42,15 @@ class User private constructor(
             )
         }
 
-        fun create(nickname: Nickname, username: Username, roles: List<UserRole>): User {
+        suspend fun create(username : Username, roles: List<UserRole>, checkDuplicate: suspend (Username) -> Boolean): User {
+
+            if (checkDuplicate(username)) {
+                throw UsernameDuplicateException()
+            }
+
             return User(
                 id = null,
-                nickname = nickname,
+                nickname = Nickname(username.value),
                 username = username,
                 roles = roles
             )

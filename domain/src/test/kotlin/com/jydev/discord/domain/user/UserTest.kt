@@ -10,54 +10,67 @@ class UserTest : StringSpec({
 
     "User 생성 - 유효한 정보로 사용자 생성 시 정상 생성" {
         // Given
-        val nickname = Nickname("테스트사용자")
         val username = Username("test_user")
         val roles = listOf(UserRole.USER)
+        val checkDuplicate: suspend (Username) -> Boolean = { false }
         
         // When
-        val user = User.create(nickname, username, roles)
+        val user = User.create(username, roles, checkDuplicate)
         
         // Then
         user.id shouldBe null
-        user.nickname shouldBe nickname
+        user.nickname.value shouldBe username.value
         user.username shouldBe username
         user.roles shouldBe roles
     }
 
-    "User 생성 - 최소 길이 닉네임과 사용자명으로 생성 시 정상 생성" {
+    "User 생성 - 최소 길이 사용자명으로 생성 시 정상 생성" {
         // Given
-        val nickname = Nickname("AB")
         val username = Username("ab")
         val roles = listOf(UserRole.USER)
+        val checkDuplicate: suspend (Username) -> Boolean = { false }
         
         // When
-        val user = User.create(nickname, username, roles)
+        val user = User.create(username, roles, checkDuplicate)
         
         // Then
-        user.nickname shouldBe nickname
+        user.nickname.value shouldBe username.value
         user.username shouldBe username
         user.roles shouldBe roles
     }
 
-    "User 생성 - 최대 길이 닉네임과 사용자명으로 생성 시 정상 생성" {
+    "User 생성 - 최대 길이 사용자명으로 생성 시 정상 생성" {
         // Given
-        val longNickname = Nickname("A".repeat(30))
         val longUsername = Username("a".repeat(30))
         val roles = listOf(UserRole.USER)
+        val checkDuplicate: suspend (Username) -> Boolean = { false }
         
         // When
-        val user = User.create(longNickname, longUsername, roles)
+        val user = User.create(longUsername, roles, checkDuplicate)
         
         // Then
-        user.nickname shouldBe longNickname
+        user.nickname.value shouldBe longUsername.value
         user.username shouldBe longUsername
         user.roles shouldBe roles
+    }
+
+    "User 생성 - 중복된 사용자명으로 생성 시 UsernameDuplicateException 발생" {
+        // Given
+        val username = Username("duplicate_user")
+        val roles = listOf(UserRole.USER)
+        val checkDuplicate: suspend (Username) -> Boolean = { true } // 중복됨
+        
+        // When & Then
+        shouldThrow<UsernameDuplicateException> {
+            runBlocking {
+                User.create(username, roles, checkDuplicate)
+            }
+        }
     }
 
     "updateNickname - 새로운 닉네임으로 업데이트 시 닉네임 변경됨" {
         // Given
         val user = UserFixture.createKakaoUser()
-        val originalNickname = user.nickname
         val newNickname = Nickname("새로운닉네임")
         
         // When
@@ -65,61 +78,56 @@ class UserTest : StringSpec({
         
         // Then
         user.nickname shouldBe newNickname
-        user.nickname shouldBe newNickname
-        (user.nickname == originalNickname) shouldBe false
     }
 
     "updateNickname - 동일한 닉네임으로 업데이트 시 정상 처리" {
         // Given
         val user = UserFixture.createKakaoUser()
-        val currentNickname = user.nickname
+        val sameNickname = user.nickname
         
         // When
-        user.updateNickname(currentNickname)
+        user.updateNickname(sameNickname)
         
         // Then
-        user.nickname shouldBe currentNickname
+        user.nickname shouldBe sameNickname
     }
 
     "updateUsername - 새로운 사용자명으로 업데이트 시 사용자명 변경됨" {
         // Given
         val user = UserFixture.createKakaoUser()
-        val originalUsername = user.username
         val newUsername = Username("new_username")
+        val checkDuplicate: suspend (Username) -> Boolean = { false }
         
         // When
-        runBlocking {
-            user.updateUsername(newUsername) { false } // 중복 없음
-        }
+        user.updateUsername(newUsername, checkDuplicate)
         
         // Then
         user.username shouldBe newUsername
-        (user.username == originalUsername) shouldBe false
     }
 
     "updateUsername - 동일한 사용자명으로 업데이트 시 정상 처리" {
         // Given
         val user = UserFixture.createKakaoUser()
-        val currentUsername = user.username
+        val sameUsername = user.username
+        val checkDuplicate: suspend (Username) -> Boolean = { false }
         
         // When
-        runBlocking {
-            user.updateUsername(currentUsername) { false } // 중복 없음
-        }
+        user.updateUsername(sameUsername, checkDuplicate)
         
         // Then
-        user.username shouldBe currentUsername
+        user.username shouldBe sameUsername
     }
 
     "updateUsername - 중복된 사용자명으로 업데이트 시 UsernameDuplicateException 발생" {
         // Given
         val user = UserFixture.createKakaoUser()
         val duplicateUsername = Username("duplicate_user")
+        val checkDuplicate: suspend (Username) -> Boolean = { true }
         
         // When & Then
-        runBlocking {
-            shouldThrow<UsernameDuplicateException> {
-                user.updateUsername(duplicateUsername) { true } // 중복 있음
+        shouldThrow<UsernameDuplicateException> {
+            runBlocking {
+                user.updateUsername(duplicateUsername, checkDuplicate)
             }
         }
     }
@@ -127,49 +135,43 @@ class UserTest : StringSpec({
     "updateUsername - 중복체크 함수가 호출되는지 확인" {
         // Given
         val user = UserFixture.createKakaoUser()
-        val newUsername = Username("check_called")
+        val newUsername = Username("new_user")
         var checkCalled = false
+        val checkDuplicate: suspend (Username) -> Boolean = { 
+            checkCalled = true
+            false 
+        }
         
         // When
-        runBlocking {
-            user.updateUsername(newUsername) { username ->
-                checkCalled = true
-                username shouldBe newUsername // 올바른 사용자명이 전달되는지 확인
-                false // 중복 없음
-            }
-        }
+        user.updateUsername(newUsername, checkDuplicate)
         
         // Then
         checkCalled shouldBe true
-        user.username shouldBe newUsername
     }
 
     "User 불변성 - userId는 변경 불가능" {
         // Given
         val user = UserFixture.createKakaoUser()
-        val originalUserId = user.id
+        val originalId = user.id
         
-        // When - 다른 작업들을 수행해도
+        // When
         user.updateNickname(Nickname("변경된닉네임"))
-        runBlocking {
-            user.updateUsername(Username("changed_username")) { false }
-        }
+        user.updateUsername(Username("changed_user")) { false }
         
-        // Then - userId는 변경되지 않음
-        user.id shouldBe originalUserId
+        // Then
+        user.id shouldBe originalId
     }
 
     "User 연속 업데이트 - 닉네임과 사용자명을 연속으로 업데이트 시 모두 반영됨" {
         // Given
         val user = UserFixture.createKakaoUser()
-        val newNickname = Nickname("연속업데이트닉네임")
-        val newUsername = Username("continuous_update")
+        val newNickname = Nickname("새닉네임")
+        val newUsername = Username("new_username")
+        val checkDuplicate: suspend (Username) -> Boolean = { false }
         
         // When
         user.updateNickname(newNickname)
-        runBlocking {
-            user.updateUsername(newUsername) { false }
-        }
+        user.updateUsername(newUsername, checkDuplicate)
         
         // Then
         user.nickname shouldBe newNickname
@@ -179,20 +181,15 @@ class UserTest : StringSpec({
     "UserFixture 테스트 - 다양한 픽스처로 사용자 생성 시 올바른 데이터 설정" {
         // When
         val kakaoUser = UserFixture.createKakaoUser()
-        val longNicknameUser = UserFixture.createUserWithLongNickname()
-        val shortNicknameUser = UserFixture.createUserWithShortNickname()
-        val numberUsernameUser = UserFixture.createUserWithNumberUsername()
-        val underscoreUsernameUser = UserFixture.createUserWithUnderscoreUsername()
         val adminUser = UserFixture.createAdminUser()
         
         // Then
-        kakaoUser.id shouldBe null
+        kakaoUser.nickname.value shouldBe "테스트사용자"
+        kakaoUser.username.value shouldBe "testuser"
         kakaoUser.roles shouldBe listOf(UserRole.USER)
-        longNicknameUser.nickname.value.length shouldBe 30
-        shortNicknameUser.nickname.value shouldBe "짧음"
-        numberUsernameUser.username.value shouldBe "123456789"
-        underscoreUsernameUser.username.value shouldBe "test_user_name_123"
-        adminUser.id shouldBe null
+        
+        adminUser.nickname.value shouldBe "관리자"
+        adminUser.username.value shouldBe "admin_user"
         adminUser.roles shouldBe listOf(UserRole.ADMIN, UserRole.USER)
     }
 

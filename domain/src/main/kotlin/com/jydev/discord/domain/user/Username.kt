@@ -8,6 +8,6 @@ value class Username(val value: String) {
         require(value.matches(Regex("^[a-zA-Z0-9_]+$"))) {
             "사용자명은 영문자, 숫자, 밑줄(_)만 사용할 수 있습니다."
         }
-        require(value.length in 2..30) { "사용자명은 2~30자 사이여야 합니다." }
+        require(value.length in 2..32) { "사용자명은 2~32자 사이여야 합니다." }
     }
 }

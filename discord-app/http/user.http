@@ -1,0 +1,8 @@
+### 사용자 등록 - 정상 케이스
+POST http://localhost:8080/api/v1/users/register
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiVEVNUE9SQUwiXSwiaWF0IjoxNzU3NzQyNzUwLCJleHAiOjE3NTc3NDYzNTB9.-s52Hz_3AnHl3bfJZl5Bk9-RW3BEqYooMaxmvpZbBAb8_OBmiMF-FIIj2p579WLndglIYZtR60-yOiipJ6G-NQ
+
+{
+  "username": "test_user123"
+}
