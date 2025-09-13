@@ -41,7 +41,8 @@ class SecurityConfig(
             .authorizeExchange { exchanges ->
                 exchanges
                     .pathMatchers(*securityProperties.publicUrls.toTypedArray()).permitAll()
-                    .anyExchange().authenticated()
+                    .pathMatchers("/api/v1/users/register").hasAuthority("ROLE_TEMPORAL")
+                    .anyExchange().hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
             }
             .build()
     }
