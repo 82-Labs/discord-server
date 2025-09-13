@@ -1,3 +1,7 @@
+plugins {
+    id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
+}
+
 dependencies {
     implementation(project(":domain"))
     implementation(project(":common"))
@@ -21,4 +25,10 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.3")
     testImplementation("com.ninja-squad:springmockk:4.0.2")
+}
+
+openApi {
+    apiDocsUrl.set("http://localhost:8080/v3/api-docs")
+    outputDir.set(file("$projectDir/docs"))
+    outputFileName.set("openapi.json")
 }

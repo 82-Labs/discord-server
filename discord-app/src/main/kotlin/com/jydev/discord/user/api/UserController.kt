@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 
 private val logger = KotlinLogging.logger {}
 
-@Tag(name = "사용자", description = "사용자 관련 API")
+@Tag(name = "User", description = "사용자 관련 API")
 @RestController
 @RequestMapping("/api/v1/users")
 class UserController(
@@ -32,7 +32,7 @@ class UserController(
 ) {
 
     @Operation(
-        summary = "사용자 등록",
+        summary = "Register User",
         description = """
             임시 가입 상태의 사용자를 정식 사용자로 등록합니다.
             
@@ -48,7 +48,7 @@ class UserController(
     @ApiResponses(
         value = [
             ApiResponse(
-                responseCode = "201",
+                responseCode = "200",
                 description = "사용자 등록 성공",
                 content = [Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,

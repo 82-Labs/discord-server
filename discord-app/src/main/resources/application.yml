@@ -2,6 +2,7 @@ spring:
   application:
     name: discord-server
   
+  
   # MySQL R2DBC Configuration  
   r2dbc:
     url: r2dbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -27,21 +28,16 @@ app:
   security:
     cors-allowed-origins:
       - "http://localhost:3000"
-      - "http://localhost:5173"
     public-urls:
       - "/api/v1/auth/**"
       - "/actuator/health"
-      - "/api-docs"
+      - "/docs/**"
       - "/webjars/**"
       - "/v3/api-docs/**"
 
 springdoc:
   swagger-ui:
-    path: /api-docs
-    enabled: true
-  api-docs:
-    path: /v3/api-docs
-    enabled: true
+    enabled: false
 
 kakao:
   auth:

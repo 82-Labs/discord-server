@@ -1,0 +1,7 @@
+apis:
+  main:
+    root: ./docs/openapi.json
+
+theme:
+  openapi:
+    sortTagsAlphabetically: true
