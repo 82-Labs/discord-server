@@ -130,6 +130,30 @@ class GlobalExceptionHandler {
             .body(errorResponse)
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    suspend fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+        logger.warn { "잘못된 인자: ${ex.message}" }
+        val errorResponse = ErrorResponse(
+            code = "E400000",
+            message = ex.message ?: "잘못된 요청입니다."
+        )
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(errorResponse)
+    }
+
+    @ExceptionHandler(IllegalStateException::class)
+    suspend fun handleIllegalStateException(ex: IllegalStateException): ResponseEntity<ErrorResponse> {
+        logger.warn { "잘못된 상태: ${ex.message}" }
+        val errorResponse = ErrorResponse(
+            code = "E409000",
+            message = ex.message ?: "요청을 처리할 수 없는 상태입니다."
+        )
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(errorResponse)
+    }
+
     @ExceptionHandler(Exception::class)
     suspend fun handleGeneralException(ex: Exception): ResponseEntity<ErrorResponse> {
         logger.error(ex) { "예상치 못한 오류 발생: ${ex.message}" }
