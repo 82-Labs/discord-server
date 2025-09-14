@@ -52,6 +52,10 @@ class JwtAuthenticationWebFilter(
             .flatMap { authentication ->
                 onAuthenticationSuccess(authentication, WebFilterExchange(exchange, chain))
             }
+            .onErrorResume { error ->
+                logger.warn { "인증 실패: ${error.message}" }
+                chain.filter(exchange)
+            }
             .then()
     }
 

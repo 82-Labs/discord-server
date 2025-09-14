@@ -3,7 +3,7 @@ POST http://localhost:8080/api/v1/auth/kakao
 Content-Type: application/json
 
 {
-  "code": "CJb_XHv08FnaXPTCNKno2vE7qwobWdC6iY6zx4V5idoZXrBVDm6DpwAAAAQKFwEPAAABmUNaZgKGtS2__sNdBQ"
+  "code": "azzVXXCRfwHfiZBS3GlueuuOkAKvTr200-UaSw2isJQj-ZpEbbna4wAAAAQKDRTdAAABmUY6cNmGtS2__sNdBQ"
 }
 
 ### 토큰 갱신

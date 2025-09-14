@@ -4,7 +4,9 @@ import com.jydev.discord.domain.user.Nickname
 import com.jydev.discord.domain.user.User
 import com.jydev.discord.domain.user.UserRole
 import com.jydev.discord.domain.user.Username
+import com.jydev.discord.domain.user.relation.*
 
+// User 매핑
 fun UserEntity.toDomain(): User {
     return User.of(
         userId = id,
@@ -20,5 +22,41 @@ fun User.toEntity(): UserEntity {
         nickname = nickname.value,
         username = username.value,
         roles = roles.joinToString(",") { it.name },
+    )
+}
+
+// UserRelation 매핑
+fun UserRelation.toEntity(): UserRelationEntity {
+    return UserRelationEntity(
+        id = id,
+        userId = userId,
+        relatedUserId = relatedUserId,
+        relationType = relationType.name
+    )
+}
+
+fun UserRelationEntity.toDomain(): UserRelation {
+    return UserRelation(
+        id = id,
+        target = RelationTarget.forRelation(userId, relatedUserId),
+        relationType = UserRelationType.valueOf(relationType)
+    )
+}
+
+// UserRelationRequest 매핑
+fun UserRelationRequest.toEntity(): UserRelationRequestEntity {
+    return UserRelationRequestEntity(
+        id = id,
+        senderId = senderId,
+        receiverId = receiverId,
+        status = status.name
+    )
+}
+
+fun UserRelationRequestEntity.toDomain(): UserRelationRequest {
+    return UserRelationRequest(
+        id = id,
+        requester = RelationTarget.forRequest(senderId, receiverId),
+        status = UserRelationRequestStatus.valueOf(status)
     )
 }

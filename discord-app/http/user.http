@@ -1,8 +1,74 @@
 ### 사용자 등록 - 정상 케이스
 POST http://localhost:8080/api/v1/users/register
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiVEVNUE9SQUwiXSwiaWF0IjoxNzU3NzQyNzUwLCJleHAiOjE3NTc3NDYzNTB9.-s52Hz_3AnHl3bfJZl5Bk9-RW3BEqYooMaxmvpZbBAb8_OBmiMF-FIIj2p579WLndglIYZtR60-yOiipJ6G-NQ
+Authorization: Bearer {{accessToken}}
 
 {
   "username": "test_user123"
+}
+
+### 친구 요청 보내기 - 정상 케이스
+POST http://localhost:8080/api/v1/users/relations/request
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "receiverUsername": "test_user1234"
+}
+
+### 친구 요청 보내기 - 존재하지 않는 사용자
+POST http://localhost:8080/api/v1/users/relations/request
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "receiverUsername": "nonexistent_user"
+}
+
+### 친구 요청 보내기 - 자기 자신에게
+POST http://localhost:8080/api/v1/users/relations/request
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "receiverUsername": "test_user123"
+}
+
+### 받은 친구 요청 목록 조회
+GET http://localhost:8080/api/v1/users/relations/requests/received
+Authorization: Bearer {{accessToken}}
+
+### 친구 목록 조회
+GET http://localhost:8080/api/v1/users/relations/friend
+Authorization: Bearer {{accessToken}}
+
+### 차단 목록 조회
+GET http://localhost:8080/api/v1/users/relations/blocked
+Authorization: Bearer {{accessToken}}
+
+### 친구 요청 수락
+POST http://localhost:8080/api/v1/users/relations/requests/accept
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "requestId": 3
+}
+
+### 친구 요청 거절
+POST http://localhost:8080/api/v1/users/relations/requests/reject
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "requestId": 2
+}
+
+### 친구 요청 취소
+POST http://localhost:8080/api/v1/users/relations/requests/cancel
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "requestId": 3
 }

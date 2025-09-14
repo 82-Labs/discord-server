@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(tree:*)",
+      "Bash(npx @redocly/cli build-docs:*)"
     ],
     "deny": []
   }
