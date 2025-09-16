@@ -17,10 +17,10 @@ CREATE INDEX idx_user_relation_user_id ON user_relation(user_id);
 CREATE INDEX idx_user_relation_related_user_id ON user_relation(related_user_id);
 
 -- 관계 유형별 조회 인덱스
-CREATE INDEX idx_user_relations_user_type ON user_relations(user_id, relation_type);
+CREATE INDEX idx_user_relation_user_type ON user_relation(user_id, relation_type);
 
 -- 중복 관계 방지 유니크 인덱스
-CREATE UNIQUE INDEX idx_user_relations_unique ON user_relations(user_id, related_user_id);
+CREATE UNIQUE INDEX idx_user_relation_unique ON user_relation(user_id, related_user_id);
 
 -- 사용자 관계 요청 테이블 (친구 요청 등)
 CREATE TABLE user_relation_request (

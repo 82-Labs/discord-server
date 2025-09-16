@@ -34,6 +34,7 @@ app:
       - "/docs/**"
       - "/webjars/**"
       - "/v3/api-docs/**"
+      - "/api/test/**"
 
 springdoc:
   swagger-ui:
