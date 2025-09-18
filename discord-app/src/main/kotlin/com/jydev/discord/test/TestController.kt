@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/test")
+@RequestMapping("/api/v1/test")
 @Profile("local")
 @Tag(name = "Test", description = "로컬 환경 테스트용 API")
 class TestController(

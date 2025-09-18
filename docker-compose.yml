@@ -18,6 +18,8 @@ services:
   discord-app:
     env_file:
       - ./discord-app/env/local.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
     image: discord-app:latest
     build:
       context: .
