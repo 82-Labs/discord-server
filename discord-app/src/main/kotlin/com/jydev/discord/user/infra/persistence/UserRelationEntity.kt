@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 
-@Table("user_relations")
+@Table("user_relation")
 data class UserRelationEntity(
     @Id
     @Column("id")

@@ -5,7 +5,7 @@ import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 
-@Table("user_relation_requests")
+@Table("user_relation_request")
 data class UserRelationRequestEntity(
     @Id
     @Column("id")
