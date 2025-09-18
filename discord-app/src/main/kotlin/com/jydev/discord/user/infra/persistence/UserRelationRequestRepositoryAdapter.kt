@@ -49,7 +49,7 @@ class UserRelationRequestRepositoryAdapter(
                 urr.sender_id,
                 s.username as sender_username,
                 s.nickname as sender_nickname
-            FROM user_relation_requests urr
+            FROM user_relation_request urr
             INNER JOIN users s ON urr.sender_id = s.id
             WHERE urr.receiver_id = :receiverId
             AND urr.status = 'PENDING'
