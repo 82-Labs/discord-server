@@ -1,0 +1,90 @@
+### 테스트 사용자 생성 - user1
+POST http://localhost:8080/api/v1/test/users
+Content-Type: application/json
+
+{
+  "username": "test_user1234"
+}
+
+### 테스트 사용자 생성 - user2
+POST http://localhost:8080/api/v1/test/users
+Content-Type: application/json
+
+{
+  "username": "user2"
+}
+
+### 테스트 사용자 생성 - user3
+POST http://localhost:8080/api/v1/test/users
+Content-Type: application/json
+
+{
+  "username": "user3"
+}
+
+### 친구 요청 전송 (user1 -> user2)
+POST http://localhost:8080/api/v1/test/relations/request
+Content-Type: application/json
+
+{
+  "senderUsername": "user1",
+  "receiverUsername": "user2"
+}
+
+### 친구 요청 전송 (user2 -> user3)
+POST http://localhost:8080/api/v1/test/relations/request
+Content-Type: application/json
+
+{
+  "senderUsername": "user2",
+  "receiverUsername": "user3"
+}
+
+### 친구 요청 수락 (user2가 user1의 요청 수락)
+# requestId는 실제 요청 ID로 변경해야 합니다
+POST http://localhost:8080/api/v1/test/relations/requests/ACCEPT
+Content-Type: application/json
+
+{
+  "requestId": 1,
+  "username": "user2"
+}
+
+### 친구 요청 거절 (user3가 user2의 요청 거절)
+# requestId는 실제 요청 ID로 변경해야 합니다
+POST http://localhost:8080/api/v1/test/relations/requests/REJECT
+Content-Type: application/json
+
+{
+  "requestId": 2,
+  "username": "user3"
+}
+
+### 친구 요청 취소 (user1이 보낸 요청 취소)
+# requestId는 실제 요청 ID로 변경해야 합니다
+POST http://localhost:8080/api/v1/test/relations/requests/CANCEL
+Content-Type: application/json
+
+{
+  "requestId": 1,
+  "username": "user1"
+}
+
+### 상호 친구 요청 테스트 (자동 수락)
+# user1이 user3에게 요청
+POST http://localhost:8080/api/v1/test/relations/request
+Content-Type: application/json
+
+{
+  "senderUsername": "user1",
+  "receiverUsername": "user3"
+}
+
+### user3도 user1에게 요청 (자동으로 친구가 됨)
+POST http://localhost:8080/api/v1/test/relations/request
+Content-Type: application/json
+
+{
+  "senderUsername": "user3",
+  "receiverUsername": "user1"
+}

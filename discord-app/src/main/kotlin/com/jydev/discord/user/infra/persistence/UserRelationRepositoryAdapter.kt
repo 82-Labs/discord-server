@@ -70,7 +70,7 @@ class UserRelationRepositoryAdapter(
                 u.username as related_username,
                 u.nickname as related_nickname,
                 ur.relation_type
-            FROM user_relations ur
+            FROM user_relation ur
             INNER JOIN users u ON ur.related_user_id = u.id
             WHERE ur.user_id = :userId
         """.trimIndent()
@@ -94,7 +94,7 @@ class UserRelationRepositoryAdapter(
                 u.username as related_username,
                 u.nickname as related_nickname,
                 ur.relation_type
-            FROM user_relations ur
+            FROM user_relation ur
             INNER JOIN users u ON ur.related_user_id = u.id
             WHERE ur.user_id = :userId
             AND ur.relation_type = :relationType
