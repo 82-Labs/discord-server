@@ -102,4 +102,21 @@ interface UserControllerDocs {
         authUser: AuthUser.User,
         type: UserRelationType
     ): List<UserRelationApiResponse>
+
+    @Operation(
+        summary = "Delete User Relation",
+        description = """
+            사용자 관계(친구)를 삭제합니다.
+            
+            **가능한 에러:**
+            - 사용자를 찾을 수 없습니다
+            - 관계가 존재하지 않습니다
+            - 친구 관계가 아닙니다
+        """
+    )
+    @AuthenticatedApiResponses
+    suspend fun deleteUserRelation(
+        authUser: AuthUser.User,
+        targetUsername: String
+    )
 }

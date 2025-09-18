@@ -20,6 +20,7 @@ class UserController(
     private val registerUserUseCase: RegisterUserUseCase,
     private val requestUserRelationUseCase: RequestUserRelationUseCase,
     private val handleUserRelationRequestUseCase: HandleUserRelationRequestUseCase,
+    private val deleteUserRelationUseCase: DeleteUserRelationUseCase,
     private val userRelationRequestDao: UserRelationRequestDao,
     private val userRelationDao: UserRelationDao
 ) : UserControllerDocs {
@@ -114,5 +115,17 @@ class UserController(
                 type = readModel.relationType
             )
         }
+    }
+    
+    @DeleteMapping("/relations/{targetUsername}")
+    override suspend fun deleteUserRelation(
+        @CurrentUser authUser: AuthUser.User,
+        @PathVariable targetUsername: String
+    ) {
+        val command = DeleteUserRelationCommand(
+            userId = authUser.userId,
+            targetUsername = targetUsername
+        )
+        deleteUserRelationUseCase(command)
     }
 }
