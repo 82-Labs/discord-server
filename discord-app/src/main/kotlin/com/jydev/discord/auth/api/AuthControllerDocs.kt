@@ -7,6 +7,9 @@ import com.jydev.discord.auth.api.dto.TokenResponse
 import com.jydev.discord.common.swagger.AuthenticatedApiResponses
 import com.jydev.discord.common.swagger.CommonErrorResponses
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 
 @Tag(name = "Auth", description = "사용자 인증 관련 API")
@@ -26,7 +29,14 @@ interface AuthControllerDocs {
             **응답 분기:**
             - 정식 사용자: 두 토큰 모두 포함된 응답
             - 임시 가입 사용자: refreshToken이 null인 응답 (추가 회원가입 필요)
-        """
+        """,
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "인증 성공",
+                content = [Content(schema = Schema(implementation = TokenResponse::class))]
+            )
+        ]
     )
     @CommonErrorResponses
     suspend fun authenticateWithKakao(
@@ -52,7 +62,14 @@ interface AuthControllerDocs {
             **보안 정책:**
             - 세션 불일치: 현재 사용자의 토큰 삭제
             - 사용자 불일치: 관련된 모든 사용자의 토큰 삭제
-        """
+        """,
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "토큰 갱신 성공",
+                content = [Content(schema = Schema(implementation = RefreshTokenResponse::class))]
+            )
+        ]
     )
     @AuthenticatedApiResponses
     suspend fun refreshToken(

@@ -84,30 +84,47 @@ class UserController(
     @GetMapping("/relations/requests/received")
     override suspend fun getReceivedRequests(
         @CurrentUser authUser: AuthUser.User
-    ): List<ReceivedRequestApiResponse> {
+    ): ReceivedRequestsApiResponse {
         val requests = userRelationRequestDao.findPendingReceivedRequests(authUser.userId)
-        return requests.map { readModel ->
-            ReceivedRequestApiResponse(
+        val items = requests.map { readModel ->
+            ReceivedRequestItem(
                 id = readModel.id,
-                senderId = readModel.senderId,
-                senderUsername = readModel.senderUsername.value,
-                senderNickname = readModel.senderNickname.value
+                senderId = readModel.userId,
+                senderUsername = readModel.username.value,
+                senderNickname = readModel.nickname.value
             )
         }
+        return ReceivedRequestsApiResponse(content = items)
+    }
+
+    @GetMapping("/relations/requests/sent")
+    override suspend fun getSentRequests(
+        @CurrentUser authUser: AuthUser.User
+    ): SentRequestsApiResponse {
+        val requests = userRelationRequestDao.findPendingSentRequests(authUser.userId)
+        val items = requests.map { readModel ->
+            SentRequestItem(
+                id = readModel.id,
+                receiverId = readModel.userId,
+                receiverUsername = readModel.username.value,
+                receiverNickname = readModel.nickname.value
+            )
+        }
+        return SentRequestsApiResponse(content = items)
     }
 
     @GetMapping("/relations/{type}")
     override suspend fun getUserRelations(
         @CurrentUser authUser: AuthUser.User,
         @PathVariable type: UserRelationType
-    ): List<UserRelationApiResponse> {
+    ): UserRelationsApiResponse {
         val relations = userRelationDao.findUserRelationsWithUserInfoByType(
             userId = authUser.userId,
             type = type
         )
         
-        return relations.map { readModel ->
-            UserRelationApiResponse(
+        val items = relations.map { readModel ->
+            UserRelationItem(
                 id = readModel.id,
                 userId = readModel.relatedUserId,
                 username = readModel.relatedUsername.value,
@@ -115,6 +132,7 @@ class UserController(
                 type = readModel.relationType
             )
         }
+        return UserRelationsApiResponse(content = items)
     }
     
     @DeleteMapping("/relations/{targetUsername}")
