@@ -7,6 +7,7 @@ class User private constructor(
     nickname: Nickname,
     username: Username,
     roles: List<UserRole>,
+    status: UserStatus = UserStatus.NONE
 ) {
     var nickname: Nickname = nickname
         private set
@@ -15,6 +16,9 @@ class User private constructor(
         private set
 
     var roles: List<UserRole> = roles
+        private set
+    
+    var status: UserStatus = status
         private set
 
     fun updateNickname(newNickname: Nickname) {
@@ -31,14 +35,25 @@ class User private constructor(
     fun updateRoles(newRoles: List<UserRole>) {
         this.roles = newRoles
     }
+    
+    fun updateStatus(newStatus: UserStatus) {
+        this.status = newStatus
+    }
 
     companion object {
-        fun of(userId: Long?, nickname: Nickname, username: Username, roles: List<UserRole>): User {
+        fun of(
+            userId: Long?, 
+            nickname: Nickname, 
+            username: Username, 
+            roles: List<UserRole>,
+            status: UserStatus = UserStatus.NONE
+        ): User {
             return User(
                 id = userId,
                 nickname = nickname,
                 username = username,
-                roles = roles
+                roles = roles,
+                status = status
             )
         }
 

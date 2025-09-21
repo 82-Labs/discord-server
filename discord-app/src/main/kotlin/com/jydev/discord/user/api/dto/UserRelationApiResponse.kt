@@ -1,5 +1,6 @@
 package com.jydev.discord.user.api.dto
 
+import com.jydev.discord.domain.user.UserStatus
 import com.jydev.discord.domain.user.relation.UserRelationType
 import io.swagger.v3.oas.annotations.media.Schema
 
@@ -25,5 +26,8 @@ data class UserRelationItem(
     val nickname: String,
     
     @field:Schema(description = "관계 유형", example = "FRIEND")
-    val type: UserRelationType
+    val type: UserRelationType,
+    
+    @field:Schema(description = "사용자 상태", example = "ONLINE")
+    val status: UserStatus
 )

@@ -1,6 +1,7 @@
 package com.jydev.discord.user.infra.persistence
 
 import com.jydev.discord.domain.user.Nickname
+import com.jydev.discord.domain.user.UserStatus
 import com.jydev.discord.domain.user.Username
 import com.jydev.discord.domain.user.relation.*
 import com.jydev.discord.user.application.UserRelationDao
@@ -69,7 +70,8 @@ class UserRelationRepositoryAdapter(
                 ur.related_user_id,
                 u.username as related_username,
                 u.nickname as related_nickname,
-                ur.relation_type
+                ur.relation_type,
+                u.status as related_user_status
             FROM user_relation ur
             INNER JOIN users u ON ur.related_user_id = u.id
             WHERE ur.user_id = :userId
@@ -93,7 +95,8 @@ class UserRelationRepositoryAdapter(
                 ur.related_user_id,
                 u.username as related_username,
                 u.nickname as related_nickname,
-                ur.relation_type
+                ur.relation_type,
+                u.status as related_user_status
             FROM user_relation ur
             INNER JOIN users u ON ur.related_user_id = u.id
             WHERE ur.user_id = :userId
@@ -110,12 +113,14 @@ class UserRelationRepositoryAdapter(
     }
     
     private fun Row.toUserRelationReadModel(): UserRelationReadModel {
+        val statusString = get("related_user_status", String::class.java)
         return UserRelationReadModel(
             id = get("id", Long::class.java)!!,
             relatedUserId = get("related_user_id", Long::class.java)!!,
             relatedUsername = Username(get("related_username", String::class.java)!!),
             relatedNickname = Nickname(get("related_nickname", String::class.java)!!),
-            relationType = UserRelationType.valueOf(get("relation_type", String::class.java)!!)
+            relationType = UserRelationType.valueOf(get("relation_type", String::class.java)!!),
+            relatedUserStatus = statusString?.let { UserStatus.valueOf(it) } ?: UserStatus.OFFLINE
         )
     }
 }

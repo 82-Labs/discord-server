@@ -1,14 +1,18 @@
 package com.jydev.discord.user.infra.persistence
 
+import com.jydev.discord.domain.user.Nickname
 import com.jydev.discord.domain.user.User
 import com.jydev.discord.domain.user.UserRepository
+import com.jydev.discord.domain.user.UserStatus
 import com.jydev.discord.domain.user.Username
+import com.jydev.discord.user.application.UserDao
+import com.jydev.discord.user.application.dto.UserReadModel
 import org.springframework.stereotype.Repository
 
 @Repository
 class UserRepositoryAdapter(
     private val r2dbcUserRepository: R2dbcUserRepository
-) : UserRepository {
+) : UserRepository, UserDao {
 
     override suspend fun findByUserId(userId: Long): User? {
         return r2dbcUserRepository.findById(userId)?.toDomain()
@@ -28,5 +32,15 @@ class UserRepositoryAdapter(
 
     override suspend fun deleteByUserId(userId: Long) {
         r2dbcUserRepository.deleteById(userId)
+    }
+
+    override suspend fun findById(userId: Long): UserReadModel? {
+        val entity = r2dbcUserRepository.findById(userId) ?: return null
+        return UserReadModel(
+            id = entity.id!!,
+            username = Username(entity.username),
+            nickname = Nickname(entity.nickname),
+            status = entity.status.let { UserStatus.valueOf(it) }
+        )
     }
 }

@@ -179,4 +179,22 @@ interface UserControllerDocs {
         authUser: AuthUser.User,
         targetUsername: String
     )
+    
+    @Operation(
+        summary = "Get Current User",
+        description = """
+            현재 로그인한 사용자의 정보를 조회합니다.
+        """,
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "사용자 정보 조회 성공",
+                content = [Content(schema = Schema(implementation = UserApiResponse::class))]
+            )
+        ]
+    )
+    @AuthenticatedApiResponses
+    suspend fun getMe(
+        authUser: AuthUser.User
+    ): UserApiResponse
 }

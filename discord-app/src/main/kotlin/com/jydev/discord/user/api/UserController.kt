@@ -22,7 +22,8 @@ class UserController(
     private val handleUserRelationRequestUseCase: HandleUserRelationRequestUseCase,
     private val deleteUserRelationUseCase: DeleteUserRelationUseCase,
     private val userRelationRequestDao: UserRelationRequestDao,
-    private val userRelationDao: UserRelationDao
+    private val userRelationDao: UserRelationDao,
+    private val userDao: UserDao
 ) : UserControllerDocs {
 
     @PostMapping("/register")
@@ -129,7 +130,8 @@ class UserController(
                 userId = readModel.relatedUserId,
                 username = readModel.relatedUsername.value,
                 nickname = readModel.relatedNickname.value,
-                type = readModel.relationType
+                type = readModel.relationType,
+                status = readModel.relatedUserStatus
             )
         }
         return UserRelationsApiResponse(content = items)
@@ -145,5 +147,20 @@ class UserController(
             targetUsername = targetUsername
         )
         deleteUserRelationUseCase(command)
+    }
+    
+    @GetMapping("/me")
+    override suspend fun getMe(
+        @CurrentUser authUser: AuthUser.User
+    ): UserApiResponse {
+        val user = userDao.findById(authUser.userId) 
+            ?: throw IllegalStateException("사용자를 찾을 수 없습니다: ${authUser.userId}")
+        
+        return UserApiResponse(
+            id = user.id,
+            username = user.username.value,
+            nickname = user.nickname.value,
+            status = user.status
+        )
     }
 }

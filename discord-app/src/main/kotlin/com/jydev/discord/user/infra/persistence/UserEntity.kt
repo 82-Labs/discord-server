@@ -17,5 +17,8 @@ data class UserEntity(
     val username: String,
 
     @Column("roles")
-    val roles: String
+    val roles: String,
+    
+    @Column("status")
+    val status: String
 )

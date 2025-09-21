@@ -1,3 +1,7 @@
+### 현재 사용자 정보 조회
+GET http://localhost:8080/api/v1/users/me
+Authorization: Bearer {{accessToken}}
+
 ### 사용자 등록 - 정상 케이스
 POST http://localhost:8080/api/v1/users/register
 Content-Type: application/json
