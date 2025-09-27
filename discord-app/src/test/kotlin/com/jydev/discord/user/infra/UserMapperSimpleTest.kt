@@ -19,7 +19,8 @@ class UserMapperSimpleTest {
             id = 123L,
             nickname = "테스트사용자",
             username = "testuser",
-            roles = "USER"
+            roles = "USER",
+            status = "ONLINE"
         )
 
         // When
@@ -39,7 +40,8 @@ class UserMapperSimpleTest {
             id = 456L,
             nickname = "관리자",
             username = "admin_user", 
-            roles = "ADMIN,USER,TEMPORAL"
+            roles = "ADMIN,USER,TEMPORAL",
+            status = "ONLINE"
         )
 
         // When
@@ -59,7 +61,8 @@ class UserMapperSimpleTest {
             id = 789L,
             nickname = "새사용자",
             username = "newuser",
-            roles = ""
+            roles = "",
+            status = "ONLINE"
         )
 
         // When
@@ -79,7 +82,8 @@ class UserMapperSimpleTest {
             id = 321L,
             nickname = "빈역할사용자",
             username = "emptyrole_user",
-            roles = "   "
+            roles = "   ",
+            status = "ONLINE"
         )
 
         // When
@@ -139,7 +143,8 @@ class UserMapperSimpleTest {
             id = 999L,
             nickname = "테스트계정",
             username = "test_account",
-            roles = "ADMIN,USER,TEMPORAL"
+            roles = "ADMIN,USER,TEMPORAL",
+            status = "ONLINE"
         )
 
         // When

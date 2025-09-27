@@ -1,0 +1,5 @@
+package com.jydev.discord.chat.channel.infra.persistence
+
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+
+interface ReactiveMongoDirectMessageChannelRepository : ReactiveMongoRepository<DirectMessageChannelDocument, Long>
