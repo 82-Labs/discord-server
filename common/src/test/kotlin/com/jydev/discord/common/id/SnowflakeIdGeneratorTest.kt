@@ -37,8 +37,8 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
             it("유니크한 ID를 생성해야 한다") {
                 val generator = SnowflakeIdGenerator(machineId = 1L, currentTime = mockCurrentTime)
                 
-                val id1 = generator.nextId()
-                val id2 = generator.nextId()
+                val id1 = generator.generateId()
+                val id2 = generator.generateId()
                 
                 id1 shouldNotBe id2
                 id2 shouldBeGreaterThan id1
@@ -47,7 +47,7 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
             it("올바른 구조의 ID를 생성해야 한다") {
                 val generator = SnowflakeIdGenerator(machineId = 512L, currentTime = mockCurrentTime)
                 
-                val id = generator.nextId()
+                val id = generator.generateId()
                 
                 // ID 분해
                 val timestamp = (id shr 22) // timestamp 부분 추출
@@ -68,7 +68,7 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
                 val fixedTime = currentTimeMillis.get()
                 every { mockCurrentTime.millis() } returns fixedTime
                 
-                val ids = (1..100).map { generator.nextId() }
+                val ids = (1..100).map { generator.generateId() }
                 
                 // 모든 ID가 유니크해야 함
                 ids.toSet().size shouldBe 100
@@ -94,7 +94,7 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
                 }
                 
                 // 4097개 생성 (시퀀스 오버플로우 발생)
-                val ids = (1..4097).map { generator.nextId() }
+                val ids = (1..4097).map { generator.generateId() }
                 
                 // 마지막 ID는 다음 밀리초의 ID여야 함
                 val lastTimestamp = ids.last() shr 22
@@ -108,13 +108,13 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
                 val generator = SnowflakeIdGenerator(machineId = 1L, currentTime = mockCurrentTime)
                 
                 // 첫 ID 생성
-                generator.nextId()
+                generator.generateId()
                 
                 // 시간을 뒤로 설정
                 currentTimeMillis.addAndGet(-1000)
                 
                 shouldThrow<IllegalStateException> {
-                    generator.nextId()
+                    generator.generateId()
                 }
             }
         }
@@ -154,7 +154,7 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
                     thread {
                         try {
                             repeat(idsPerThread) {
-                                allIds.add(generator.nextId())
+                                allIds.add(generator.generateId())
                             }
                         } finally {
                             latch.countDown()
@@ -181,7 +181,7 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
                 val allIds = runBlocking {
                     (1..coroutineCount).map {
                         async {
-                            (1..idsPerCoroutine).map { generator.nextId() }
+                            (1..idsPerCoroutine).map { generator.generateId() }
                         }
                     }.awaitAll().flatten()
                 }
@@ -199,8 +199,8 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
                 val generator1 = SnowflakeIdGenerator(machineId = 1L, currentTime = realCurrentTime)
                 val generator2 = SnowflakeIdGenerator(machineId = 2L, currentTime = realCurrentTime)
                 
-                val ids1 = (1..1000).map { generator1.nextId() }.toSet()
-                val ids2 = (1..1000).map { generator2.nextId() }.toSet()
+                val ids1 = (1..1000).map { generator1.generateId() }.toSet()
+                val ids2 = (1..1000).map { generator2.generateId() }.toSet()
                 
                 // 두 생성기의 ID가 겹치지 않아야 함
                 ids1.intersect(ids2).size shouldBe 0
@@ -223,7 +223,7 @@ class SnowflakeIdGeneratorTest : DescribeSpec({
                 val count = 100_000
                 
                 repeat(count) {
-                    generator.nextId()
+                    generator.generateId()
                 }
                 
                 val elapsedTime = System.currentTimeMillis() - startTime

@@ -1,8 +1,6 @@
 package com.jydev.discord.common.id
 
 import com.jydev.discord.common.time.CurrentTime
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -13,11 +11,10 @@ import java.util.concurrent.atomic.AtomicLong
  * - 10bit: machine ID (workerId + datacenterId)
  * - 12bit: sequence number
  */
-@Component
 class SnowflakeIdGenerator(
-    @Value("\${snowflake.machine-id:1}") private val machineId: Long = 1L,
+    private val machineId: Long = 1L,
     private val currentTime: CurrentTime
-) {
+) : IdGenerator {
     companion object {
         // Service epoch: 2025-10-01 00:00:00 UTC
         private const val SERVICE_EPOCH = 1727740800000L
@@ -43,7 +40,7 @@ class SnowflakeIdGenerator(
     private val sequence = AtomicLong(0L)
     
     @Synchronized
-    fun nextId(): Long {
+    override fun generateId(): Long {
         var timestamp = currentTime.millis()
         
         // 시계가 뒤로 갔을 경우 에러
