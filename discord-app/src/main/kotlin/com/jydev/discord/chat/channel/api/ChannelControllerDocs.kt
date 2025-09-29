@@ -1,9 +1,9 @@
-package com.jydev.discord.chat.api
+package com.jydev.discord.chat.channel.api
 
-import com.jydev.discord.chat.api.dto.CreateDirectMessageChannelRequest
-import com.jydev.discord.chat.api.dto.DirectMessageChannelResponse
-import com.jydev.discord.chat.api.dto.DirectMessageChannelsResponse
-import com.jydev.discord.chat.api.dto.UpdateChannelVisibilityRequest
+import com.jydev.discord.chat.channel.api.dto.CreateDirectMessageChannelRequest
+import com.jydev.discord.chat.channel.api.dto.DirectMessageChannelResponse
+import com.jydev.discord.chat.channel.api.dto.DirectMessageChannelsResponse
+import com.jydev.discord.chat.channel.api.dto.UpdateChannelVisibilityRequest
 import com.jydev.discord.common.swagger.AuthenticatedApiResponses
 import com.jydev.discord.domain.auth.AuthUser
 import io.swagger.v3.oas.annotations.Operation
@@ -58,13 +58,13 @@ interface ChannelControllerDocs {
             현재 사용자의 다이렉트 메시지 채널 목록을 조회합니다.
             
             **동작 방식:**
-            - 사용자가 참여중인 모든 DM 채널 목록을 반환
-            - 사용자가 숨김 처리한 채널은 제외됨
+            - 사용자가 참여중인 모든 DM 채널 목록을 반환 (숨김 여부 관계없이)
             - 채널 ID와 참여자 목록 정보를 포함하여 반환
+            - 각 채널의 숨김 상태(hidden) 정보도 함께 반환
             
-            **필터링:**
-            - isHidden이 false인 채널만 조회
-            - 사용자가 명시적으로 숨기지 않은 채널만 표시
+            **반환 정보:**
+            - 모든 채널 조회 (숨김 처리된 채널 포함)
+            - hidden 필드로 숨김 여부 표시
             
             **정렬:**
             - 채널 ID 순으로 정렬되어 반환

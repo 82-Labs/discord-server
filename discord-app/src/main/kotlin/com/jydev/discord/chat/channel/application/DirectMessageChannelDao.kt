@@ -1,10 +1,10 @@
-package com.jydev.discord.chat.application
+package com.jydev.discord.chat.channel.application
 
-import com.jydev.discord.chat.application.dto.DirectMessageChannelReadModel
+import com.jydev.discord.chat.channel.application.dto.DirectMessageChannelReadModel
 
 interface DirectMessageChannelDao {
     
     suspend fun findByUserIds(userIds: Set<Long>): DirectMessageChannelReadModel?
     
-    suspend fun findVisibleChannelsByUserId(userId: Long): List<DirectMessageChannelReadModel>
+    suspend fun findAllChannelsByUserId(userId: Long): List<DirectMessageChannelReadModel>
 }

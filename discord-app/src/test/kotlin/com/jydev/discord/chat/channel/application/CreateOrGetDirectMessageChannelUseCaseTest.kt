@@ -1,6 +1,6 @@
-package com.jydev.discord.chat.application
+package com.jydev.discord.chat.channel.application
 
-import com.jydev.discord.chat.application.dto.DirectMessageChannelReadModel
+import com.jydev.discord.chat.channel.application.dto.DirectMessageChannelReadModel
 import com.jydev.discord.common.id.IdGenerator
 import com.jydev.discord.domain.chat.DirectMessageChannel
 import com.jydev.discord.domain.chat.DirectMessageChannelRepository
@@ -92,7 +92,8 @@ class CreateOrGetDirectMessageChannelUseCaseTest : DescribeSpec({
             val existingChannelId = 200L
             val existingChannel = DirectMessageChannelReadModel(
                 channelId = existingChannelId,
-                userIds = targetUserIds
+                userIds = targetUserIds,
+                hidden = false
             )
             
             beforeEach {

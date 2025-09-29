@@ -1,4 +1,4 @@
-package com.jydev.discord.chat.application
+package com.jydev.discord.chat.channel.application
 
 import com.jydev.discord.domain.chat.UserDirectMessageChannel
 import com.jydev.discord.domain.chat.UserDirectMessageChannelRepository

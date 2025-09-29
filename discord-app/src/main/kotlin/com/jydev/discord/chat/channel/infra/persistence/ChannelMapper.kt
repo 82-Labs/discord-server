@@ -1,6 +1,6 @@
 package com.jydev.discord.chat.channel.infra.persistence
 
-import com.jydev.discord.chat.application.dto.DirectMessageChannelReadModel
+import com.jydev.discord.chat.channel.application.dto.DirectMessageChannelReadModel
 import com.jydev.discord.domain.chat.DirectMessageChannel
 import com.jydev.discord.domain.chat.UserDirectMessageChannel
 
@@ -19,10 +19,11 @@ fun DirectMessageChannel.toDocument(): DirectMessageChannelDocument {
     )
 }
 
-fun DirectMessageChannelDocument.toReadModel(): DirectMessageChannelReadModel {
+fun DirectMessageChannelDocument.toReadModel(isHidden: Boolean = false): DirectMessageChannelReadModel {
     return DirectMessageChannelReadModel(
         channelId = this.id,
-        userIds = this.userIds
+        userIds = this.userIds,
+        hidden = isHidden
     )
 }
 

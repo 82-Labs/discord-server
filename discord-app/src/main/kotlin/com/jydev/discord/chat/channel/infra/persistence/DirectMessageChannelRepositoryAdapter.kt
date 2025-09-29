@@ -1,7 +1,7 @@
 package com.jydev.discord.chat.channel.infra.persistence
 
-import com.jydev.discord.chat.application.DirectMessageChannelDao
-import com.jydev.discord.chat.application.dto.DirectMessageChannelReadModel
+import com.jydev.discord.chat.channel.application.DirectMessageChannelDao
+import com.jydev.discord.chat.channel.application.dto.DirectMessageChannelReadModel
 import com.jydev.discord.domain.chat.DirectMessageChannel
 import com.jydev.discord.domain.chat.DirectMessageChannelRepository
 import kotlinx.coroutines.reactive.awaitSingle
@@ -42,15 +42,15 @@ class DirectMessageChannelRepositoryAdapter(
             ?.toReadModel()
     }
     
-    override suspend fun findVisibleChannelsByUserId(userId: Long): List<DirectMessageChannelReadModel> {
-        // R2DBC에서 사용자의 보이는 채널 ID 목록 조회
-        val visibleUserChannels = userChannelRepository.findVisibleByUserId(userId)
+    override suspend fun findAllChannelsByUserId(userId: Long): List<DirectMessageChannelReadModel> {
+        // R2DBC에서 사용자의 모든 채널 정보 조회 (hide 여부 포함)
+        val userChannels = userChannelRepository.findByUserId(userId)
         
-        if (visibleUserChannels.isEmpty()) {
+        if (userChannels.isEmpty()) {
             return emptyList()
         }
         
-        val channelIds = visibleUserChannels.map { it.channelId }
+        val channelIds = userChannels.map { it.channelId }
         
         // MongoDB에서 채널 정보 조회
         val channels = mongoRepository.findAllById(channelIds)
@@ -58,6 +58,14 @@ class DirectMessageChannelRepositoryAdapter(
             .awaitSingleOrNull()
             ?: emptyList()
         
-        return channels.map { it.toReadModel() }
+        // UserChannel의 hide 정보와 매핑
+        val channelMap = channels.associateBy { it.id }
+        val userChannelMap = userChannels.associateBy { it.channelId }
+        
+        return channelMap.mapNotNull { (channelId, channel) ->
+            userChannelMap[channelId]?.let { userChannel ->
+                channel.toReadModel(userChannel.isHidden)
+            }
+        }
     }
 }

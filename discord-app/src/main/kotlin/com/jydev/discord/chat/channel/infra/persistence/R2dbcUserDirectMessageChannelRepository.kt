@@ -13,5 +13,7 @@ interface R2dbcUserDirectMessageChannelRepository : CoroutineCrudRepository<User
     """)
     suspend fun findVisibleByUserId(@Param("userId") userId: Long): List<UserDirectMessageChannelEntity>
     
+    suspend fun findByUserId(userId: Long): List<UserDirectMessageChannelEntity>
+    
     suspend fun findByUserIdAndChannelId(userId: Long, channelId: Long): UserDirectMessageChannelEntity?
 }

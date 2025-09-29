@@ -1,4 +1,4 @@
-package com.jydev.discord.chat.api.dto
+package com.jydev.discord.chat.channel.api.dto
 
 import jakarta.validation.constraints.Size
 

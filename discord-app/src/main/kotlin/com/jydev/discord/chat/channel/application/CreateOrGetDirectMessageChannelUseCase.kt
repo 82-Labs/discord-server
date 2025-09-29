@@ -1,6 +1,6 @@
-package com.jydev.discord.chat.application
+package com.jydev.discord.chat.channel.application
 
-import com.jydev.discord.chat.application.dto.DirectMessageChannelReadModel
+import com.jydev.discord.chat.channel.application.dto.DirectMessageChannelReadModel
 import com.jydev.discord.common.id.IdGenerator
 import com.jydev.discord.domain.chat.DirectMessageChannel
 import com.jydev.discord.domain.chat.DirectMessageChannelRepository
@@ -31,7 +31,8 @@ class CreateOrGetDirectMessageChannelUseCase(
             directMessageChannelRepository.save(newChannel)
             DirectMessageChannelReadModel(
                 channelId = newChannel.id,
-                userIds = newChannel.userIds
+                userIds = newChannel.userIds,
+                hidden = false  // 새로 생성된 채널은 항상 보임 상태
             )
         }
         
