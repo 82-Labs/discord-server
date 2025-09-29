@@ -1,5 +1,6 @@
 package com.jydev.discord.chat.channel.api
 
+import com.jydev.discord.chat.channel.api.dto.ChannelUserResponse
 import com.jydev.discord.chat.channel.api.dto.CreateDirectMessageChannelRequest
 import com.jydev.discord.chat.channel.api.dto.DirectMessageChannelResponse
 import com.jydev.discord.chat.channel.api.dto.DirectMessageChannelsResponse
@@ -9,6 +10,7 @@ import com.jydev.discord.chat.channel.application.DirectMessageChannelDao
 import com.jydev.discord.chat.channel.application.HideDirectMessageChannelUseCase
 import com.jydev.discord.security.CurrentUser
 import com.jydev.discord.domain.auth.AuthUser
+import com.jydev.discord.user.application.UserDao
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 
@@ -17,7 +19,8 @@ import org.springframework.web.bind.annotation.*
 class ChannelController(
     private val createOrGetDirectMessageChannelUseCase: CreateOrGetDirectMessageChannelUseCase,
     private val directMessageChannelDao: DirectMessageChannelDao,
-    private val hideDirectMessageChannelUseCase: HideDirectMessageChannelUseCase
+    private val hideDirectMessageChannelUseCase: HideDirectMessageChannelUseCase,
+    private val userDao: UserDao
 ) : ChannelControllerDocs {
     
     @PostMapping("/direct-messages")
@@ -31,9 +34,24 @@ class ChannelController(
             targetUserIds = targetUserIds
         )
         
+        // 사용자 정보 조회
+        val users = userDao.findByIdIn(channel.userIds)
+        val userMap = users.associateBy { it.id }
+        
+        val channelUsers = channel.userIds.mapNotNull { userId ->
+            userMap[userId]?.let { user ->
+                ChannelUserResponse(
+                    userId = user.id,
+                    username = user.username.value,
+                    nickname = user.nickname.value,
+                    status = user.status
+                )
+            }
+        }
+        
         return DirectMessageChannelResponse(
             channelId = channel.channelId,
-            userIds = channel.userIds,
+            users = channelUsers,
             hidden = false  // 새로 생성/조회된 채널은 항상 표시 상태
         )
     }
@@ -44,10 +62,28 @@ class ChannelController(
     ): DirectMessageChannelsResponse {
         val channels = directMessageChannelDao.findAllChannelsByUserId(user.userId)
         
+        // 모든 채널의 사용자 ID 수집
+        val allUserIds = channels.flatMap { it.userIds }.toSet()
+        
+        // 사용자 정보 한 번에 조회
+        val users = userDao.findByIdIn(allUserIds)
+        val userMap = users.associateBy { it.id }
+        
         val items = channels.map { channel ->
+            val channelUsers = channel.userIds.mapNotNull { userId ->
+                userMap[userId]?.let { user ->
+                    ChannelUserResponse(
+                        userId = user.id,
+                        username = user.username.value,
+                        nickname = user.nickname.value,
+                        status = user.status
+                    )
+                }
+            }
+            
             DirectMessageChannelResponse(
                 channelId = channel.channelId,
-                userIds = channel.userIds,
+                users = channelUsers,
                 hidden = channel.hidden
             )
         }

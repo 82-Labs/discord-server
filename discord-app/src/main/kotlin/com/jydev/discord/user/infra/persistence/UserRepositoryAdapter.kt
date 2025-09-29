@@ -7,6 +7,7 @@ import com.jydev.discord.domain.user.UserStatus
 import com.jydev.discord.domain.user.Username
 import com.jydev.discord.user.application.UserDao
 import com.jydev.discord.user.application.dto.UserReadModel
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -42,5 +43,18 @@ class UserRepositoryAdapter(
             nickname = Nickname(entity.nickname),
             status = entity.status.let { UserStatus.valueOf(it) }
         )
+    }
+    
+    override suspend fun findByIdIn(userIds: Collection<Long>): List<UserReadModel> {
+        if (userIds.isEmpty()) return emptyList()
+        
+        return r2dbcUserRepository.findAllById(userIds).toList().map { entity ->
+            UserReadModel(
+                id = entity.id!!,
+                username = Username(entity.username),
+                nickname = Nickname(entity.nickname),
+                status = entity.status.let { UserStatus.valueOf(it) }
+            )
+        }
     }
 }
